@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import './EmployeeList.css';
 import ConfirmModal from './../common/ConfirmModal';
 import SuccessModal from './../common/SuccessModal';
+import LoadingSpinner from './../common/LoadingSpinner';
 
 const API_BASE_URL = 'http://localhost:5172';
+const ITEMS_PER_PAGE = 6;
 
 const EmployeeList = () => {
   const navigate = useNavigate();
@@ -18,20 +20,34 @@ const EmployeeList = () => {
     employee: null
   });
 
-  // Estados para confirmación y éxito
+  const [currentPage, setCurrentPage] = useState(1);
   const [showConfirm, setShowConfirm] = useState(false);
   const [employeeToDelete, setEmployeeToDelete] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
-  
-  // Estado para el switch de administrador
   const [isAdminInModal, setIsAdminInModal] = useState(false);
-  // Estado para el valor del input de Rol
   const [roleValue, setRoleValue] = useState('');
 
   const token = localStorage.getItem('authToken');
 
-  // *** CARGAR EMPLEADOS DESDE EL BACKEND ***
+  // ============ CERRAR SESIÓN ============
+  const handleLogout = () => {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userData');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userId');
+    sessionStorage.clear();
+
+    document.cookie.split(';').forEach((c) => {
+      document.cookie = c
+        .replace(/^ +/, '')
+        .replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
+    });
+
+    navigate('/');
+  };
+
+  // ============ CARGAR EMPLEADOS ============
   useEffect(() => {
     const fetchEmployees = async () => {
       setLoading(true);
@@ -46,23 +62,63 @@ const EmployeeList = () => {
 
         if (response.ok) {
           const data = await response.json();
-          // Transformar los datos del backend al formato del frontend
-          const transformedData = data.map(emp => ({
-            id: emp.idEmpleadoExterno,
-            dbId: emp.id, // Guardar el ID de la base de datos
-            name: emp.nombre,
-            email: emp.email || '',
-            phone: emp.telefono || '',
-            role: emp.rolNombre || emp.rol || '',
-            area: emp.areaNombre || emp.area || '',
-            active: emp.estaActivo,
-            admin: emp.esAdmin,
-            schedule: emp.horarios || {}
-          }));
+
+          const dayNames = {
+            0: 'Domingo',
+            1: 'Lunes',
+            2: 'Martes',
+            3: 'Miercoles',
+            4: 'Jueves',
+            5: 'Viernes',
+            6: 'Sabado'
+          };
+
+          const transformedData = data.map(emp => {
+            // Horarios
+            const scheduleObj = {
+              Lunes: { from: '', to: '' },
+              Martes: { from: '', to: '' },
+              Miercoles: { from: '', to: '' },
+              Jueves: { from: '', to: '' },
+              Viernes: { from: '', to: '' },
+              Sabado: { from: '', to: '' },
+              Domingo: { from: '', to: '' }
+            };
+
+            if (emp.horarios && Array.isArray(emp.horarios)) {
+              emp.horarios.forEach(horario => {
+                const dayName = dayNames[horario.dia];
+                if (dayName && scheduleObj[dayName]) {
+                  scheduleObj[dayName] = {
+                    from: horario.horaInicio ? horario.horaInicio.substring(0, 5) : '',
+                    to: horario.horaFin ? horario.horaFin.substring(0, 5) : ''
+                  };
+                }
+              });
+            }
+
+            // Soportar nombres de propiedades en minúscula o PascalCase
+            const empEmail = emp.email || emp.Email || '';
+            const empPhone = emp.telefono || emp.Telefono || '';
+
+            return {
+              id: emp.idEmpleadoExterno || emp.IdEmpleadoExterno,
+              dbId: emp.id || emp.Id,
+              name: emp.nombre || emp.Nombre,
+              email: empEmail,
+              phone: empPhone,
+              role: emp.nombreRol || emp.NombreRol || '',
+              area: emp.nombreArea || emp.NombreArea || '',
+              active: emp.estaActivo ?? emp.EstaActivo,
+              admin: emp.esAdmin ?? emp.EsAdmin,
+              schedule: scheduleObj
+            };
+          });
+
           setEmployees(transformedData);
         } else if (response.status === 401) {
           alert('No autorizado. Por favor inicia sesión nuevamente.');
-          navigate('/');
+          handleLogout();
         } else {
           alert('Error al cargar empleados');
         }
@@ -80,15 +136,33 @@ const EmployeeList = () => {
     }
   }, [token, navigate]);
 
-  // Filtrado y búsqueda
+  // ============ STICKY COLUMN FIX ============
+  useEffect(() => {
+    const applyStickyFix = () => {
+      const lastCells = document.querySelectorAll(
+        '.employee-table th:nth-child(8), .employee-table td:nth-child(8)'
+      );
+      lastCells.forEach(cell => {
+        cell.style.position = 'sticky';
+        cell.style.right = '0';
+      });
+    };
+
+    if (employees.length > 0) {
+      setTimeout(applyStickyFix, 100);
+    }
+  }, [employees, currentPage]);
+
+  // ============ FILTRADO Y BÚSQUEDA ============
   const filteredEmployees = useMemo(() => {
     return employees.filter(emp => {
-      const matchesSearch = 
-        emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        emp.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        emp.email.toLowerCase().includes(searchQuery.toLowerCase());
+      const q = searchQuery.toLowerCase();
+      const matchesSearch =
+        emp.name.toLowerCase().includes(q) ||
+        emp.id.toLowerCase().includes(q) ||
+        emp.email.toLowerCase().includes(q);
 
-      const matchesFilter = 
+      const matchesFilter =
         filterActive === 'all' ||
         (filterActive === 'active' && emp.active) ||
         (filterActive === 'inactive' && !emp.active);
@@ -97,7 +171,36 @@ const EmployeeList = () => {
     });
   }, [employees, searchQuery, filterActive]);
 
-  // Función para manejar el cambio del switch
+  // ============ PAGINACIÓN ============
+  const totalPages = Math.ceil(filteredEmployees.length / ITEMS_PER_PAGE);
+
+  const paginatedEmployees = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    return filteredEmployees.slice(startIndex, endIndex);
+  }, [filteredEmployees, currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filterActive]);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    document.querySelector('.table-container')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) handlePageChange(currentPage - 1);
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) handlePageChange(currentPage + 1);
+  };
+
+  // ============ ADMIN SWITCH ============
   const handleAdminSwitchChange = (e) => {
     const isChecked = e.target.checked;
     setIsAdminInModal(isChecked);
@@ -108,7 +211,7 @@ const EmployeeList = () => {
     }
   };
 
-  // Abrir modal para agregar
+  // ============ AGREGAR EMPLEADO ============
   const handleAddEmployee = () => {
     setModalData({
       isNew: true,
@@ -136,7 +239,7 @@ const EmployeeList = () => {
     setIsModalOpen(true);
   };
 
-  // Abrir modal para editar
+  // ============ EDITAR EMPLEADO ============
   const handleEditEmployee = (employee) => {
     setModalData({
       isNew: false,
@@ -147,31 +250,70 @@ const EmployeeList = () => {
     setIsModalOpen(true);
   };
 
-  // Cerrar modal de agregar/editar
   const toggleModal = () => {
     setIsModalOpen(false);
   };
 
-  // *** GUARDAR EMPLEADO (AGREGAR O EDITAR) ***
+  // ============ GUARDAR (CREAR/EDITAR) ============
   const handleSaveEmployee = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    
-    const employeeData = {
-      idEmpleadoExterno: formData.get('id'),
-      nombre: formData.get('name'),
-      email: formData.get('email'),
-      telefono: formData.get('phone'),
-      nombreRol: isAdminInModal ? 'Administrador' : roleValue,
-      nombreArea: formData.get('area'),
-      esAdmin: isAdminInModal,
-      password: formData.get('password') || undefined
+
+    const dayOfWeekMap = {
+      'Domingo': 0,
+      'Lunes': 1,
+      'Martes': 2,
+      'Miercoles': 3,
+      'Jueves': 4,
+      'Viernes': 5,
+      'Sabado': 6
     };
 
-    try {
+    const horariosArray = [];
+    ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'].forEach(day => {
+      const from = formData.get(`${day}-from`);
+      const to = formData.get(`${day}-to`);
+      if (from && to) {
+        horariosArray.push({
+          Dia: dayOfWeekMap[day],
+          HoraInicio: from + ':00',
+          HoraFin: to + ':00'
+        });
+      }
+    });
+
+    // IMPORTANTE: asegurar IdEmpleadoExterno en edición
+    const idEmpleadoExterno = modalData.isNew
+      ? formData.get('id')
+      : modalData.employee.id;
+
+    if (!idEmpleadoExterno) {
+      alert('El ID de empleado es obligatorio');
+      return;
+    }
+
+    const employeeData = {
+      IdEmpleadoExterno: idEmpleadoExterno,
+      Nombre: formData.get('name'),
+      NombreArea: formData.get('area') || '',
+      NombreRol: isAdminInModal ? 'Administrador' : (roleValue || ''),
+      Horarios: horariosArray,
+      EsAdmin: isAdminInModal
+    };
+
+    const email = formData.get('email');
+    const phone = formData.get('phone');
+    const password = formData.get('password');
+
+    if (email) employeeData.Email = email;
+    if (phone) employeeData.Telefono = phone;
+    if (isAdminInModal && password) employeeData.Password = password;
+
+    setLoading(true);
+
+    const sendRequest = async () => {
       if (modalData.isNew) {
-        // Crear nuevo empleado
-        const response = await fetch(`${API_BASE_URL}/empleados`, {
+        return fetch(`${API_BASE_URL}/empleados`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -179,18 +321,8 @@ const EmployeeList = () => {
           },
           body: JSON.stringify(employeeData)
         });
-
-        if (response.ok) {
-          showSuccessNotification(`Empleado ${employeeData.idEmpleadoExterno} agregado correctamente`);
-          // Recargar la lista
-          window.location.reload();
-        } else {
-          const error = await response.json();
-          alert(`Error: ${error.mensaje || 'No se pudo agregar el empleado'}`);
-        }
       } else {
-        // Actualizar empleado existente
-        const response = await fetch(`${API_BASE_URL}/empleados/${modalData.employee.dbId}`, {
+        return fetch(`${API_BASE_URL}/empleados/${modalData.employee.dbId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -198,33 +330,61 @@ const EmployeeList = () => {
           },
           body: JSON.stringify(employeeData)
         });
-
-        if (response.ok || response.status === 204) {
-          showSuccessNotification(`Empleado ${employeeData.idEmpleadoExterno} actualizado correctamente`);
-          // Recargar la lista
-          window.location.reload();
-        } else {
-          alert('Error al actualizar el empleado');
-        }
       }
-      setIsModalOpen(false);
+    };
+
+    try {
+      const response = await sendRequest();
+
+      if (response.ok || response.status === 204 || response.status === 201) {
+        const actionText = modalData.isNew ? 'agregado' : 'actualizado';
+        showSuccessNotification(`Empleado ${employeeData.IdEmpleadoExterno} ${actionText} correctamente`);
+        setIsModalOpen(false);
+        setTimeout(() => window.location.reload(), 1500);
+      } else {
+        // Manejo seguro de errores (puede no haber JSON)
+        let errorBody = null;
+        try {
+          const text = await response.text();
+          errorBody = text ? JSON.parse(text) : null;
+        } catch {
+          errorBody = null;
+        }
+
+        if (response.status === 401) {
+          alert('No autorizado. Tu sesión puede haber expirado. Vuelve a iniciar sesión.');
+          handleLogout();
+        } else if (errorBody && errorBody.errors) {
+          let errorMessage = 'Errores de validación:\n';
+          Object.keys(errorBody.errors).forEach(key => {
+            errorMessage += `\n• ${key}: ${errorBody.errors[key].join(', ')}`;
+          });
+          alert(errorMessage);
+        } else {
+          alert('Error al guardar el empleado');
+        }
+
+        setLoading(false);
+      }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error de conexión:', error);
       alert('No se pudo conectar al servidor');
+      setLoading(false);
     }
   };
 
-  // Mostrar modal de confirmación para eliminar
+  // ============ ELIMINAR ============
   const handleDeleteEmployee = (id) => {
     setEmployeeToDelete(id);
     setShowConfirm(true);
   };
 
-  // *** CONFIRMAR ELIMINACIÓN ***
   const confirmDelete = async () => {
     if (employeeToDelete) {
       const employee = employees.find(emp => emp.id === employeeToDelete);
-      
+
+      setLoading(true);
+
       try {
         const response = await fetch(`${API_BASE_URL}/empleados/${employee.dbId}`, {
           method: 'DELETE',
@@ -243,41 +403,43 @@ const EmployeeList = () => {
         console.error('Error:', error);
         alert('No se pudo conectar al servidor');
       }
-      
+
+      setLoading(false);
       setEmployeeToDelete(null);
       setShowConfirm(false);
     }
   };
 
-  // Cancelar eliminación
   const cancelDelete = () => {
     setShowConfirm(false);
     setEmployeeToDelete(null);
   };
 
-  // Mostrar modal de éxito
+  // ============ SUCCESS MODAL ============
   const showSuccessNotification = (message) => {
     setSuccessMessage(message);
     setShowSuccess(true);
   };
 
-  // Cerrar modal de éxito
   const handleCloseSuccess = () => {
     setShowSuccess(false);
     setSuccessMessage('');
   };
 
-  // *** TOGGLE ESTADO ACTIVO/INACTIVO ***
+  // ============ CAMBIAR ESTADO ============
   const toggleEmployeeStatus = async (id) => {
     const employee = employees.find(emp => emp.id === id);
-    
+
     try {
-      const response = await fetch(`${API_BASE_URL}/empleados/${employee.dbId}/estado?activo=${!employee.active}`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/empleados/${employee.dbId}/estado?activo=${!employee.active}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.ok || response.status === 204) {
         setEmployees(employees.map(emp =>
@@ -292,23 +454,25 @@ const EmployeeList = () => {
     }
   };
 
+  // ============ LOADING ============
   if (loading) {
     return (
-      <div className="employee-list-container">
-        <div style={{ textAlign: 'center', padding: '50px' }}>
-          <h2>Cargando empleados...</h2>
-        </div>
-      </div>
+      <LoadingSpinner
+        size="large"
+        text="Cargando empleados..."
+        fullScreen={true}
+      />
     );
   }
 
+  // ============ RENDER ============
   return (
     <div className="employee-list-container">
       <h1 className="page-title">Gestión de Empleados</h1>
 
       {/* Panel de controles */}
       <div className="control-panel">
-        <div className="control-panel-left">
+        <div className="control-panel-center">
           <button className="control-button" onClick={handleAddEmployee}>
             ➕ Agregar Empleado
           </button>
@@ -317,14 +481,12 @@ const EmployeeList = () => {
           </button>
         </div>
 
-        <div className="control-panel-right">
-          <button 
-            className="back-button"
-            onClick={() => navigate('/')}
-          >
-            ← Volver
-          </button>
-        </div>
+        <button
+          className="logout-button"
+          onClick={handleLogout}
+        >
+          🚪 Salir
+        </button>
       </div>
 
       {/* Barra de búsqueda y filtros */}
@@ -336,7 +498,7 @@ const EmployeeList = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="search-input"
         />
-        
+
         <div className="filter-buttons">
           <button
             className={`filter-btn ${filterActive === 'all' ? 'active' : ''}`}
@@ -365,59 +527,121 @@ const EmployeeList = () => {
           <thead>
             <tr>
               <th>ID</th>
-              <th>Nombre</th>
-              <th>Email</th>
-              <th>Teléfono</th>
-              <th>Rol</th>
-              <th>Área</th>
-              <th>Estado</th>
-              <th>Acciones</th>
+              <th>NOMBRE</th>
+              <th>EMAIL</th>
+              <th>TELÉFONO</th>
+              <th>ROL</th>
+              <th>ÁREA</th>
+              <th>ESTADO</th>
+              <th>ACCIONES</th>
             </tr>
           </thead>
           <tbody>
-            {filteredEmployees.map((emp) => (
-              <tr key={emp.id} className={emp.active ? '' : 'inactive-row'}>
-                <td>{emp.id}</td>
-                <td>{emp.name}</td>
-                <td>{emp.email || 'N/A'}</td>
-                <td>{emp.phone || 'N/A'}</td>
-                <td>{emp.role}</td>
-                <td>{emp.area}</td>
-                <td>
-                  <span className={`status-badge ${emp.active ? 'active' : 'inactive'}`}>
-                    {emp.active ? 'Activo' : 'Inactivo'}
-                  </span>
-                </td>
-                <td>
-                  <div className="action-buttons">
-                    <button
-                      className="btn-edit"
-                      onClick={() => handleEditEmployee(emp)}
-                      title="Editar"
-                    >
-                      ✏️
-                    </button>
-                    <button
-                      className="btn-toggle"
-                      onClick={() => toggleEmployeeStatus(emp.id)}
-                      title={emp.active ? 'Desactivar' : 'Activar'}
-                    >
-                      {emp.active ? '🔒' : '🔓'}
-                    </button>
-                    <button
-                      className="btn-delete"
-                      onClick={() => handleDeleteEmployee(emp.id)}
-                      title="Eliminar"
-                    >
-                      🗑️
-                    </button>
-                  </div>
+            {paginatedEmployees.length > 0 ? (
+              paginatedEmployees.map((emp) => (
+                <tr key={emp.id} className={emp.active ? '' : 'inactive-row'}>
+                  <td>{emp.id}</td>
+                  <td>{emp.name}</td>
+                  <td>{emp.email || 'N/A'}</td>
+                  <td>{emp.phone || 'N/A'}</td>
+                  <td>{emp.role}</td>
+                  <td>{emp.area}</td>
+                  <td>
+                    <span className={`status-badge ${emp.active ? 'active' : 'inactive'}`}>
+                      {emp.active ? 'Activo' : 'Inactivo'}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="action-buttons">
+                      <button
+                        className="btn-edit"
+                        onClick={() => handleEditEmployee(emp)}
+                        title="Editar"
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        className="btn-toggle"
+                        onClick={() => toggleEmployeeStatus(emp.id)}
+                        title={emp.active ? 'Desactivar' : 'Activar'}
+                      >
+                        {emp.active ? '🔒' : '🔓'}
+                      </button>
+                      <button
+                        className="btn-delete"
+                        onClick={() => handleDeleteEmployee(emp.id)}
+                        title="Eliminar"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="8" style={{ textAlign: 'center', padding: '40px', color: '#7D323F' }}>
+                  No se encontraron empleados
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
+
+      {/* Paginación */}
+      {filteredEmployees.length > ITEMS_PER_PAGE && (
+        <div className="pagination-container">
+          <div className="pagination-info">
+            Mostrando {((currentPage - 1) * ITEMS_PER_PAGE) + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, filteredEmployees.length)} de {filteredEmployees.length} empleados
+          </div>
+
+          <div className="pagination-controls">
+            <button
+              className="pagination-btn"
+              onClick={handlePreviousPage}
+              disabled={currentPage === 1}
+            >
+              ← Anterior
+            </button>
+
+            <div className="pagination-numbers">
+              {[...Array(totalPages)].map((_, index) => {
+                const pageNumber = index + 1;
+                if (
+                  pageNumber === 1 ||
+                  pageNumber === totalPages ||
+                  (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
+                ) {
+                  return (
+                    <button
+                      key={pageNumber}
+                      className={`pagination-number ${currentPage === pageNumber ? 'active' : ''}`}
+                      onClick={() => handlePageChange(pageNumber)}
+                    >
+                      {pageNumber}
+                    </button>
+                  );
+                } else if (
+                  pageNumber === currentPage - 2 ||
+                  pageNumber === currentPage + 2
+                ) {
+                  return <span key={pageNumber} className="pagination-dots">...</span>;
+                }
+                return null;
+              })}
+            </div>
+
+            <button
+              className="pagination-btn"
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+            >
+              Siguiente →
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Modal para agregar/editar empleado */}
       {isModalOpen && (
@@ -428,7 +652,6 @@ const EmployeeList = () => {
             </h2>
 
             <form className="add-employee-form" onSubmit={handleSaveEmployee}>
-              {/* Nombre completo */}
               <div className="form-group">
                 <label htmlFor="name">Nombre completo *</label>
                 <input
@@ -440,7 +663,6 @@ const EmployeeList = () => {
                 />
               </div>
 
-              {/* ID de empleado */}
               <div className="form-group">
                 <label htmlFor="id">ID de empleado *</label>
                 <input
@@ -449,11 +671,10 @@ const EmployeeList = () => {
                   name="id"
                   defaultValue={modalData.employee?.id}
                   required
-                  disabled={!modalData.isNew}
+                  disabled={!modalData.isNew} // solo editable al crear
                 />
               </div>
 
-              {/* Email y Teléfono en fila */}
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="email">Email</label>
@@ -476,23 +697,6 @@ const EmployeeList = () => {
                 </div>
               </div>
 
-              {/* Contraseña (solo para nuevos empleados admin) */}
-              {modalData.isNew && (
-                <div className="form-group">
-                  <label htmlFor="password">
-                    Contraseña {isAdminInModal ? '*' : '(opcional)'}
-                  </label>
-                  <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    required={isAdminInModal}
-                    placeholder={isAdminInModal ? 'Requerida para administradores' : 'Dejar en blanco si no es admin'}
-                  />
-                </div>
-              )}
-
-              {/* Switch de Administrador */}
               <div className="form-group admin-switch-container">
                 <label className="admin-switch-label">
                   <span>¿Es Administrador?</span>
@@ -507,7 +711,6 @@ const EmployeeList = () => {
                 </label>
               </div>
 
-              {/* Rol y Área en fila */}
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="role">Rol</label>
@@ -515,7 +718,7 @@ const EmployeeList = () => {
                     type="text"
                     id="role"
                     name="role"
-                    placeholder={isAdminInModal ? "Administrador (automático)" : "Ej: Docente, Coordinador, etc."}
+                    placeholder={isAdminInModal ? 'Administrador (automático)' : 'Ej: Docente, Coordinador, etc.'}
                     value={isAdminInModal ? 'Administrador' : roleValue}
                     onChange={(e) => setRoleValue(e.target.value)}
                     disabled={isAdminInModal}
@@ -534,17 +737,64 @@ const EmployeeList = () => {
                 </div>
               </div>
 
-              {/* Botones */}
+              {modalData.isNew && isAdminInModal && (
+                <div className="form-group">
+                  <label htmlFor="password">Contraseña *</label>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    required
+                    placeholder="Requerida para administradores"
+                  />
+                </div>
+              )}
+
+              <div className="horario-section">
+                <div className="horario-grid">
+                  <div className="grid-label"></div>
+                  <div className="grid-day">Lun</div>
+                  <div className="grid-day">Mar</div>
+                  <div className="grid-day">Mié</div>
+                  <div className="grid-day">Jue</div>
+                  <div className="grid-day">Vie</div>
+                  <div className="grid-day">Sáb</div>
+                  <div className="grid-day">Dom</div>
+
+                  <div className="grid-label">Entrada</div>
+                  {['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'].map(day => (
+                    <input
+                      key={`${day}-from`}
+                      type="time"
+                      name={`${day}-from`}
+                      className="time-input"
+                      defaultValue={modalData.employee?.schedule?.[day]?.from || ''}
+                    />
+                  ))}
+
+                  <div className="grid-label">Salida</div>
+                  {['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'].map(day => (
+                    <input
+                      key={`${day}-to`}
+                      type="time"
+                      name={`${day}-to`}
+                      className="time-input"
+                      defaultValue={modalData.employee?.schedule?.[day]?.to || ''}
+                    />
+                  ))}
+                </div>
+              </div>
+
               <div className="modal-buttons">
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className="cancel-button"
                   onClick={toggleModal}
                 >
                   Cancelar
                 </button>
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   className="submit-button"
                 >
                   {modalData.isNew ? 'AGREGAR' : 'GUARDAR'}
@@ -555,7 +805,6 @@ const EmployeeList = () => {
         </div>
       )}
 
-      {/* Modal de confirmación de eliminación */}
       <ConfirmModal
         isOpen={showConfirm}
         onClose={cancelDelete}
@@ -564,7 +813,6 @@ const EmployeeList = () => {
         employeeId={employeeToDelete}
       />
 
-      {/* Modal de éxito */}
       <SuccessModal
         isOpen={showSuccess}
         onClose={handleCloseSuccess}

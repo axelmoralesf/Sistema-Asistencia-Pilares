@@ -1,5 +1,5 @@
 // AttendanceHome.jsx
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import './AttendanceHome.css';
@@ -9,7 +9,6 @@ import ErrorModal from './../common/ErrorModal';
 import LoadingSpinner from './../common/LoadingSpinner';
 
 // *** CONFIGURACIÓN DE LA API ***
-// Cambia esta URL según donde corra tu backend
 const API_BASE_URL = 'http://localhost:5172';
 
 const AttendanceHome = () => {
@@ -22,11 +21,17 @@ const AttendanceHome = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [showLoading, setShowLoading] = useState(false);
+  const [showLoading, setShowLoading] = useState(false); // se usará para login/admin, no para cada escaneo
   const [isScannerActive, setIsScannerActive] = useState(false);
+  const [scannerPaused, setScannerPaused] = useState(false);
   const [scanError, setScanError] = useState('');
 
-  // Funciones de modales
+  // Flags para evitar múltiples registros
+  const isProcessingRef = useRef(false);
+  const lastScanRef = useRef('');
+
+  // ================= MODALES =================
+
   const showSuccessModal = (message) => {
     setSuccessMessage(message);
     setShowSuccess(true);
@@ -35,6 +40,10 @@ const AttendanceHome = () => {
   const handleCloseSuccess = () => {
     setShowSuccess(false);
     setSuccessMessage('');
+    // Liberar para permitir nuevo escaneo
+    isProcessingRef.current = false;
+    lastScanRef.current = '';
+    setScannerPaused(false);
   };
 
   const showErrorModal = (message) => {
@@ -43,11 +52,21 @@ const AttendanceHome = () => {
   };
 
   const handleCloseError = () => {
+    const msg = errorMessage || '';
     setShowError(false);
     setErrorMessage('');
+    // Liberar también en caso de error
+    isProcessingRef.current = false;
+    lastScanRef.current = '';
+    setScannerPaused(false);
+
+    if (msg.includes('contraseña') || msg.includes('permisos')) {
+      setIsModalOpen(true);
+    }
   };
 
-  // *** FUNCIÓN PARA REGISTRAR ASISTENCIA EN EL BACKEND ***
+  // ================= API ASISTENCIA =================
+
   const registrarAsistenciaBackend = async (idEmpleado) => {
     try {
       const response = await fetch(`${API_BASE_URL}/asistencia/marcar`, {
@@ -61,11 +80,9 @@ const AttendanceHome = () => {
       const data = await response.json();
 
       if (response.ok && data.exito) {
-        // Mostrar mensaje personalizado según el tipo (Entrada/Salida)
         const tipoMarcacion = data.tipo || 'Asistencia';
-        showSuccessModal(
-          `${tipoMarcacion} registrada para ${data.nombreEmpleado || idEmpleado}`
-        );
+        const nombreEmpleado = data.nombreEmpleado || `ID: ${idEmpleado}`;
+        showSuccessModal(`${tipoMarcacion} registrada para ${nombreEmpleado}`);
         return true;
       } else {
         showErrorModal(data.mensaje || 'Error al registrar asistencia');
@@ -78,7 +95,8 @@ const AttendanceHome = () => {
     }
   };
 
-  // Función para registrar asistencia manual
+  // ================= FORMULARIO MANUAL =================
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -87,31 +105,55 @@ const AttendanceHome = () => {
       return;
     }
 
+    // Aquí sí mostramos spinner porque es una acción puntual
     setShowLoading(true);
-    const exitoso = await registrarAsistenciaBackend(employeeId);
+    isProcessingRef.current = true;
+    lastScanRef.current = employeeId.trim();
+
+    const exitoso = await registrarAsistenciaBackend(employeeId.trim());
     setShowLoading(false);
 
     if (exitoso) {
-      setEmployeeId(''); // Limpiar input solo si fue exitoso
+      setEmployeeId('');
+    } else {
+      isProcessingRef.current = false;
+      lastScanRef.current = '';
     }
   };
 
-  // Función para manejar el escaneo del QR - CÁMARA CONTINUA
-  const handleQrScan = async (result) => {
-    if (result && result.length > 0) {
-      const scannedData = result[0].rawValue;
-      console.log(`QR escaneado: ${scannedData}`);
+  // ================= ESCÁNER QR =================
 
-      // Llenar el input con el ID escaneado
-      setEmployeeId(scannedData);
+  const handleQrScan = async (detectedCodes) => {
+    if (!detectedCodes || detectedCodes.length === 0) return;
 
-      // Registrar en el backend
-      setShowLoading(true);
-      await registrarAsistenciaBackend(scannedData);
-      setShowLoading(false);
+    const scannedData = detectedCodes[0].rawValue?.trim();
+    if (!scannedData) return;
 
-      // La cámara permanece activa para seguir escaneando
+    // Si ya estamos procesando un QR o está pausado, ignorar
+    if (isProcessingRef.current || scannerPaused) return;
+
+    // Evitar repetir exactamente el mismo código enseguida
+    if (lastScanRef.current === scannedData) return;
+
+    console.log('QR escaneado:', scannedData);
+
+    isProcessingRef.current = true;
+    lastScanRef.current = scannedData;
+    setScannerPaused(true);      // Pausar decodificación, pero dejar cámara encendida
+
+    // Mostrar el ID en el input (solo feedback visual)
+    setEmployeeId(scannedData);
+
+    // OJO: no usamos showLoading aquí para no tapar la cámara con un overlay grande
+    const ok = await registrarAsistenciaBackend(scannedData);
+
+    if (!ok) {
+      // Si falló, desbloquear para permitir reintento
+      isProcessingRef.current = false;
+      lastScanRef.current = '';
+      setScannerPaused(false);
     }
+    // Si fue bien, se desbloquea en handleCloseSuccess / handleCloseError
   };
 
   const handleScanError = (error) => {
@@ -120,15 +162,24 @@ const AttendanceHome = () => {
   };
 
   const toggleScanner = () => {
-    setIsScannerActive(!isScannerActive);
+    const next = !isScannerActive;
+    setIsScannerActive(next);
     setScanError('');
+
+    if (!next) {
+      // Al apagar la cámara, resetear estados de escaneo
+      isProcessingRef.current = false;
+      lastScanRef.current = '';
+      setScannerPaused(false);
+    }
   };
+
+  // ================= ADMIN LOGIN =================
 
   const toggleAdminModal = () => {
     setIsModalOpen(!isModalOpen);
   };
 
-  // *** AUTENTICACIÓN DEL ADMINISTRADOR CON EL BACKEND ***
   const handleAdminLogin = async (username, password) => {
     setShowLoading(true);
 
@@ -147,8 +198,7 @@ const AttendanceHome = () => {
       if (response.ok) {
         const data = await response.json();
         console.log('¡Acceso de Administrador Concedido!');
-        
-        // Guardar el token en localStorage
+
         localStorage.setItem('authToken', data.token);
         localStorage.setItem('userName', username);
         
@@ -157,7 +207,7 @@ const AttendanceHome = () => {
         setTimeout(() => {
           setShowLoading(false);
           navigate('/employees');
-        }, 1000);
+        }, 1500);
         
         return true;
       } else {
@@ -181,6 +231,8 @@ const AttendanceHome = () => {
       return false;
     }
   };
+
+  // ================= RENDER =================
 
   return (
     <div className="attendance-home">
@@ -234,7 +286,16 @@ const AttendanceHome = () => {
                 <Scanner
                   onScan={handleQrScan}
                   onError={handleScanError}
-                  constraints={{ facingMode: 'environment' }}
+                  constraints={{
+                    facingMode: 'environment',
+                    width: { ideal: 640 },
+                    height: { ideal: 480 },
+                    frameRate: { ideal: 15, max: 20 }
+                  }}
+                  formats={['qr_code']}     // solo QR, menos trabajo [web:20]
+                  allowMultiple={true}      // ignora mismo código repetido [web:20]
+                  scanDelay={1200}          // 1.2s entre escaneos [web:20]
+                  paused={scannerPaused}    // pausa decodificación mientras procesas [web:24]
                   components={{ finder: false }}
                   styles={{
                     container: { 
@@ -258,7 +319,9 @@ const AttendanceHome = () => {
                   <div className="scanner-corner scanner-br"></div>
                   <div className="scanner-grid"></div>
                   <div className="scanner-line"></div>
-                  <div className="scanner-status-text">Escaneando...</div>
+                  <div className="scanner-status-text">
+                    {scannerPaused ? 'Procesando...' : 'Escaneando...'}
+                  </div>
                 </div>
                 
                 <button className="scanner-close-btn" onClick={toggleScanner}>

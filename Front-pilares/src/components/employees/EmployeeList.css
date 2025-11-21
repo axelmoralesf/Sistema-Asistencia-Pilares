@@ -18,23 +18,24 @@
 }
 
 /* ========================================
-   PANEL DE CONTROLES
+   PANEL DE CONTROLES - CENTRADO
    ======================================== */
 
 .control-panel {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  justify-content: center;
+  align-items: center;
   padding: 20px 0;
   margin-bottom: 20px;
   background-color: #E1CAA8;
+  position: relative;
 }
 
-.control-panel-left {
+.control-panel-center {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-left: 100px;
+  gap: 15px;
+  justify-content: center;
+  align-items: center;
 }
 
 .control-button {
@@ -44,7 +45,7 @@
   text-transform: uppercase;
   border: none;
   border-radius: 8px;
-  padding: 10px 20px;
+  padding: 12px 25px;
   cursor: pointer;
   font-size: 1rem;
   transition: background-color 0.3s, transform 0.2s;
@@ -60,11 +61,13 @@
   transform: translateY(-2px);
 }
 
-.control-panel-right {
-  margin-right: 100px;
-}
+/* ========================================
+   BOTÓN DE LOGOUT - COMPACTO
+   ======================================== */
 
-.back-button {
+.logout-button {
+  position: absolute;
+  right: 0;
   background-color: #8b9896;
   color: #FFFFFF;
   font-weight: 600;
@@ -74,9 +77,13 @@
   cursor: pointer;
   font-size: 1rem;
   transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
 }
 
-.back-button:hover {
+.logout-button:hover {
   background-color: #6d7775;
   transform: translateY(-2px);
 }
@@ -145,22 +152,31 @@
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   overflow-x: auto;
+  overflow-y: visible;
   position: relative;
+  width: 100%;
+  isolation: isolate;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 20px;
 }
 
 .employee-table {
   width: 100%;
   border-collapse: collapse;
   position: relative;
+  min-width: 900px;
 }
 
 .employee-table thead {
   background-color: #7D323F;
   color: #FFFFFF;
+  position: sticky;
+  top: 0;
+  z-index: 30;
 }
 
 .employee-table th {
-  padding: 15px;
+  padding: 15px 12px;
   text-align: left;
   font-weight: 700;
   text-transform: uppercase;
@@ -169,31 +185,10 @@
   white-space: nowrap;
 }
 
-/* Hacer que la columna de Acciones sea sticky */
-.employee-table th:last-child,
-.employee-table td:last-child {
-  position: sticky;
-  right: 0;
-  background-color: inherit;
-  z-index: 10;
-}
-
-.employee-table thead th:last-child {
-  background-color: #7D323F;
-  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
-}
-
-.employee-table tbody td:last-child {
-  background-color: #FFFFFF;
-  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.05);
-}
-
-.employee-table tbody tr:hover td:last-child {
-  background-color: #F8F4EE;
-}
-
-.employee-table tbody tr.inactive-row td:last-child {
-  background-color: #f5f5f5;
+.employee-table td {
+  padding: 15px 12px;
+  color: #6E1F34;
+  font-size: 0.95rem;
 }
 
 .employee-table tbody tr {
@@ -201,8 +196,40 @@
   transition: background-color 0.3s;
 }
 
+/* ========================================
+   COLUMNA ACCIONES STICKY
+   ======================================== */
+
+.employee-table th:nth-child(8),
+.employee-table td:nth-child(8) {
+  position: -webkit-sticky;
+  position: sticky;
+  right: 0;
+  z-index: 10;
+  min-width: 140px;
+  width: 140px;
+  max-width: 140px;
+  background-color: #FFFFFF;
+}
+
+.employee-table thead th:nth-child(8) {
+  background-color: #7D323F !important;
+  box-shadow: -4px 0 8px rgba(0, 0, 0, 0.3);
+  z-index: 40;
+}
+
+.employee-table tbody td:nth-child(8) {
+  background-color: #FFFFFF !important;
+  box-shadow: -4px 0 8px rgba(0, 0, 0, 0.2);
+}
+
 .employee-table tbody tr:hover {
   background-color: #F8F4EE;
+}
+
+.employee-table tbody tr:hover td:nth-child(8) {
+  background-color: #F8F4EE !important;
+  box-shadow: -4px 0 8px rgba(0, 0, 0, 0.25);
 }
 
 .employee-table tbody tr.inactive-row {
@@ -210,11 +237,30 @@
   background-color: #f5f5f5;
 }
 
-.employee-table td {
-  padding: 15px;
-  color: #6E1F34;
-  font-size: 0.95rem;
+.employee-table tbody tr.inactive-row td:nth-child(8) {
+  background-color: #f5f5f5 !important;
+  box-shadow: -4px 0 8px rgba(0, 0, 0, 0.15);
 }
+
+.employee-table th:nth-child(8)::before,
+.employee-table td:nth-child(8)::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(
+    to right,
+    rgba(125, 50, 63, 0.5),
+    transparent
+  );
+  z-index: 1;
+}
+
+/* ========================================
+   ESTILOS DE TABLA GENERAL
+   ======================================== */
 
 .status-badge {
   padding: 5px 12px;
@@ -239,6 +285,7 @@
   display: flex;
   gap: 8px;
   justify-content: center;
+  align-items: center;
 }
 
 .btn-edit,
@@ -260,7 +307,7 @@
 
 /* Scrollbar personalizado para tabla */
 .table-container::-webkit-scrollbar {
-  height: 8px;
+  height: 10px;
 }
 
 .table-container::-webkit-scrollbar-track {
@@ -275,6 +322,93 @@
 
 .table-container::-webkit-scrollbar-thumb:hover {
   background: #6E1F34;
+}
+
+/* ========================================
+   PAGINACIÓN
+   ======================================== */
+
+.pagination-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.pagination-info {
+  color: #6E1F34;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pagination-btn {
+  background-color: #7D323F;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: #6E1F34;
+  transform: translateY(-2px);
+}
+
+.pagination-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.pagination-numbers {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.pagination-number {
+  background-color: #FFFFFF;
+  color: #7D323F;
+  border: 2px solid #7D323F;
+  border-radius: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+  min-width: 40px;
+}
+
+.pagination-number:hover {
+  background-color: #7D323F;
+  color: #FFFFFF;
+}
+
+.pagination-number.active {
+  background-color: #7D323F;
+  color: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(125, 50, 63, 0.3);
+}
+
+.pagination-dots {
+  color: #7D323F;
+  font-weight: bold;
+  padding: 0 5px;
 }
 
 /* ========================================
@@ -335,6 +469,7 @@
 .add-employee-form input[type="text"],
 .add-employee-form input[type="email"],
 .add-employee-form input[type="tel"],
+.add-employee-form input[type="password"],
 .add-employee-form select {
   width: 100%;
   padding: 12px;
@@ -364,8 +499,14 @@
   flex-direction: column;
 }
 
+.form-group input:disabled {
+  background-color: #e9ecef;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 /* ========================================
-   SWITCH DE ADMINISTRADOR - CON BORDE VISIBLE
+   SWITCH DE ADMINISTRADOR
    ======================================== */
 
 .admin-switch-container {
@@ -387,7 +528,6 @@
   font-size: 1rem;
 }
 
-/* Switch Toggle */
 .switch {
   position: relative;
   display: inline-block;
@@ -441,15 +581,8 @@ input:focus + .slider {
   box-shadow: 0 0 3px #7D323F, 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Input de Rol deshabilitado */
-.form-group input:disabled {
-  background-color: #e9ecef;
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
 /* ========================================
-   MATRIZ DE HORARIOS - OPTIMIZADA
+   MATRIZ DE HORARIOS - MEJORADA PARA RESPONSIVE
    ======================================== */
 
 .horario-section {
@@ -459,21 +592,21 @@ input:focus + .slider {
 
 .horario-grid {
   display: grid;
-  grid-template-columns: 90px repeat(7, minmax(70px, 1fr));
-  gap: 6px;
+  grid-template-columns: 90px repeat(7, minmax(80px, 1fr));
+  gap: 8px;
   align-items: center;
   overflow-x: auto;
-  padding: 10px 0;
+  padding: 15px 5px;
 }
 
 /* Días de la semana (abreviados) */
 .grid-day {
   font-weight: 700;
   color: #7D323F;
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   text-align: center;
-  padding: 4px 2px;
-  line-height: 1.2;
+  padding: 6px 4px;
+  line-height: 1.3;
 }
 
 /* Labels de entrada/salida */
@@ -481,44 +614,46 @@ input:focus + .slider {
   font-weight: 700;
   color: #6E1F34;
   text-align: left;
-  padding: 4px;
-  font-size: 0.8rem;
+  padding: 6px;
+  font-size: 0.85rem;
   white-space: nowrap;
 }
 
-/* Inputs de hora */
+/* Inputs de hora - MÁS GRANDES */
 .time-input {
-  padding: 6px 4px;
+  padding: 10px 6px;
   width: 100%;
-  max-width: 85px;
+  min-width: 80px;
+  max-width: 100px;
   border-radius: 6px;
   border: 2px solid #7D323F;
   background-color: #FFFFFF;
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   text-align: center;
   box-sizing: border-box;
   font-family: monospace;
+  font-weight: 600;
 }
 
 .time-input:focus {
   outline: none;
   border-color: #6E1F34;
-  box-shadow: 0 0 0 2px rgba(125, 50, 63, 0.1);
+  box-shadow: 0 0 0 3px rgba(125, 50, 63, 0.15);
 }
 
 /* Scrollbar personalizado para horarios */
 .horario-grid::-webkit-scrollbar {
-  height: 6px;
+  height: 8px;
 }
 
 .horario-grid::-webkit-scrollbar-track {
   background: #E0CCA7;
-  border-radius: 3px;
+  border-radius: 4px;
 }
 
 .horario-grid::-webkit-scrollbar-thumb {
   background: #7D323F;
-  border-radius: 3px;
+  border-radius: 4px;
 }
 
 .horario-grid::-webkit-scrollbar-thumb:hover {
@@ -577,12 +712,14 @@ input:focus + .slider {
    ======================================== */
 
 @media (max-width: 1200px) {
-  .control-panel-left {
-    margin-left: 20px;
+  .control-panel {
+    flex-direction: column;
+    gap: 15px;
   }
 
-  .control-panel-right {
-    margin-right: 20px;
+  .logout-button {
+    position: static;
+    align-self: flex-start;
   }
 }
 
@@ -597,13 +734,26 @@ input:focus + .slider {
 
   .control-panel {
     flex-direction: column;
+    align-items: stretch;
     gap: 15px;
   }
 
-  .control-panel-left,
-  .control-panel-right {
-    margin: 0;
+  .control-panel-center {
+    flex-direction: column;
     width: 100%;
+    gap: 10px;
+  }
+
+  .control-button {
+    width: 100%;
+  }
+
+  .logout-button {
+    position: static;
+    width: auto;
+    align-self: flex-start;
+    padding: 10px 20px;
+    font-size: 0.95rem;
   }
 
   .search-filter-bar {
@@ -619,32 +769,37 @@ input:focus + .slider {
     justify-content: space-between;
   }
 
-  /* Tabla con scroll horizontal y columna sticky */
-  .table-container {
-    overflow-x: auto;
-  }
-
   .employee-table {
-    min-width: 800px;
+    min-width: 950px;
   }
 
-  /* Asegurar que la columna de Acciones permanezca visible */
-  .employee-table th:last-child,
-  .employee-table td:last-child {
-    position: sticky;
-    right: 0;
-    min-width: 120px;
+  .employee-table th:nth-child(8),
+  .employee-table td:nth-child(8) {
+    min-width: 130px;
+    width: 130px;
+    max-width: 130px;
   }
 
-  .employee-table thead th:last-child {
-    box-shadow: -3px 0 8px rgba(0, 0, 0, 0.15);
+  .employee-table thead th:nth-child(8) {
+    box-shadow: -6px 0 12px rgba(0, 0, 0, 0.4);
   }
 
-  .employee-table tbody td:last-child {
-    box-shadow: -3px 0 8px rgba(0, 0, 0, 0.08);
+  .employee-table tbody td:nth-child(8) {
+    box-shadow: -6px 0 12px rgba(0, 0, 0, 0.3);
   }
 
-  /* Modal responsive */
+  .pagination-controls {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .pagination-numbers {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    margin-top: 10px;
+  }
+
   .add-employee-modal {
     padding: 25px 20px;
     max-width: 95%;
@@ -660,7 +815,6 @@ input:focus + .slider {
     gap: 10px;
   }
 
-  /* Switch responsive */
   .admin-switch-label {
     font-size: 0.9rem;
   }
@@ -668,10 +822,6 @@ input:focus + .slider {
   .switch {
     width: 50px;
     height: 28px;
-  }
-
-  .slider {
-    border: 2px solid #6E1F34;
   }
 
   .slider:before {
@@ -684,26 +834,30 @@ input:focus + .slider {
     transform: translateX(20px);
   }
 
-  /* Horarios responsive */
+  /* Horarios responsive - MÁS GRANDES */
   .horario-grid {
-    grid-template-columns: 70px repeat(7, minmax(60px, 1fr));
-    gap: 4px;
-    font-size: 0.65rem;
+    grid-template-columns: 85px repeat(7, minmax(85px, 1fr));
+    gap: 8px;
+    padding: 15px 5px;
   }
 
   .grid-day {
-    font-size: 0.65rem;
-    padding: 3px 1px;
+    font-size: 0.75rem;
+    padding: 6px 3px;
+    font-weight: 700;
   }
 
   .grid-label {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
+    padding: 6px;
   }
 
   .time-input {
-    padding: 5px 3px;
-    font-size: 0.7rem;
-    max-width: 70px;
+    padding: 10px 5px;
+    font-size: 0.8rem;
+    min-width: 85px;
+    max-width: 95px;
+    font-weight: 600;
   }
 
   .modal-buttons {
@@ -719,24 +873,46 @@ input:focus + .slider {
 }
 
 @media (max-width: 600px) {
+  .employee-table {
+    min-width: 850px;
+  }
+
+  .employee-table th:nth-child(8),
+  .employee-table td:nth-child(8) {
+    min-width: 120px;
+    width: 120px;
+    max-width: 120px;
+  }
+
+  .employee-table thead th:nth-child(8) {
+    box-shadow: -8px 0 16px rgba(0, 0, 0, 0.45);
+  }
+
+  .employee-table tbody td:nth-child(8) {
+    box-shadow: -8px 0 16px rgba(0, 0, 0, 0.35);
+  }
+
+  /* Horarios para pantallas pequeñas */
   .horario-grid {
-    grid-template-columns: 60px repeat(7, minmax(55px, 1fr));
-    gap: 3px;
+    grid-template-columns: 80px repeat(7, minmax(90px, 1fr));
+    gap: 8px;
+    padding: 15px 5px;
   }
 
   .grid-day {
-    font-size: 0.6rem;
-    padding: 2px 1px;
+    font-size: 0.75rem;
+    padding: 6px 2px;
   }
 
   .grid-label {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
   }
 
   .time-input {
-    padding: 4px 2px;
-    font-size: 0.65rem;
-    max-width: 65px;
+    padding: 10px 4px;
+    font-size: 0.8rem;
+    min-width: 90px;
+    max-width: 100px;
   }
 }
 
@@ -746,8 +922,13 @@ input:focus + .slider {
   }
 
   .control-button {
-    padding: 8px 15px;
+    padding: 10px 15px;
     font-size: 0.9rem;
+  }
+
+  .logout-button {
+    font-size: 0.9rem;
+    padding: 8px 16px;
   }
 
   .add-employee-modal {
@@ -758,13 +939,63 @@ input:focus + .slider {
     font-size: 1.3rem;
   }
 
-  /* En pantallas muy pequeñas, permitir scroll horizontal */
+  .employee-table {
+    min-width: 750px;
+  }
+
+  .employee-table th:nth-child(8),
+  .employee-table td:nth-child(8) {
+    min-width: 110px;
+    width: 110px;
+    max-width: 110px;
+  }
+
+  .action-buttons {
+    gap: 5px;
+  }
+
+  .btn-edit,
+  .btn-toggle,
+  .btn-delete {
+    font-size: 1.1rem;
+    padding: 4px;
+  }
+
+  /* Horarios para móviles muy pequeños */
   .horario-grid {
-    grid-template-columns: 55px repeat(7, 50px);
+    grid-template-columns: 75px repeat(7, 95px);
     overflow-x: auto;
+    gap: 8px;
+    padding: 15px 5px;
+  }
+
+  .grid-day {
+    font-size: 0.7rem;
+    padding: 5px 2px;
+  }
+
+  .grid-label {
+    font-size: 0.7rem;
   }
 
   .time-input {
-    max-width: 50px;
+    padding: 10px 4px;
+    min-width: 95px;
+    max-width: 95px;
+    font-size: 0.75rem;
+  }
+}
+
+/* Estilos para pantallas muy pequeñas (menos de 400px) */
+@media (max-width: 400px) {
+  .horario-grid {
+    grid-template-columns: 70px repeat(7, 100px);
+    gap: 6px;
+  }
+
+  .time-input {
+    padding: 12px 4px;
+    min-width: 100px;
+    font-size: 0.8rem;
   }
 }
