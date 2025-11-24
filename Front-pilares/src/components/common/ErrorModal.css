@@ -1,7 +1,7 @@
 /* ErrorModal.css */
 .error-modal {
-  background: linear-gradient(135deg, #8b3c58 0%, #6e2d45 100%);
-  border: 4px solid #e0cca7;
+  background: linear-gradient(135deg, #0C3175 0%, #0a2860 100%);
+  border: 4px solid #C0CFE1;
   border-radius: 1.25rem;
   padding: 2.5rem 2rem;
   max-width: 28rem;
@@ -44,7 +44,7 @@
 .error-circle svg {
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 0.25rem 0.5rem rgba(231, 76, 60, 0.4));
+  filter: drop-shadow(0 0.25rem 0.5rem rgba(233, 84, 85, 0.4));
 }
 
 .error-title {
@@ -60,15 +60,15 @@
   font-family: 'Montserrat', sans-serif;
   font-size: 1.1rem;
   font-weight: 500;
-  color: #e0cca7;
+  color: #C0CFE1;
   margin-bottom: 1.5rem;
   line-height: 1.5;
 }
 
 .error-retry-btn {
-  background-color: #8b3c58;
-  color: #e0cca7;
-  border: 2px solid #e0cca7;
+  background-color: #0C3175;
+  color: #C0CFE1;
+  border: 2px solid #C0CFE1;
   border-radius: 0.625rem;
   padding: 0.75rem 2rem;
   font-size: 1rem;
@@ -81,13 +81,18 @@
 }
 
 .error-retry-btn:hover {
-  background-color: #6e2d45;
+  background-color: #0a2860;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .error-retry-btn:active {
   transform: translateY(0);
+}
+
+.error-retry-btn:focus-visible {
+  outline: 3px solid #C0CFE1;
+  outline-offset: 2px;
 }
 
 /* Responsive */

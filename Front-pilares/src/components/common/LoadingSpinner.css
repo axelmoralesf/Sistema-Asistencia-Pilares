@@ -8,8 +8,8 @@
 }
 
 .spinner {
-  border: 4px solid #E1CAA8;
-  border-top-color: #7D323F;
+  border: 4px solid #C0CFE1;
+  border-top-color: #0C3175;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -40,7 +40,7 @@
 .loading-text {
   font-family: 'Montserrat', sans-serif;
   font-weight: 600;
-  color: #6E1F34;
+  color: #0C3175;
   font-size: 1rem;
 }
 
@@ -51,7 +51,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(12, 49, 117, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -60,8 +60,8 @@
 }
 
 .loading-modal-content {
-  background-color: #E0CCA7;
-  border: 4px solid #E0CCA7;
+  background-color: #C0CFE1;
+  border: 4px solid #C0CFE1;
   border-radius: 1.25rem;
   padding: 3rem 3rem;
   min-width: 20rem;
@@ -88,15 +88,15 @@
 
 /* Spinner en modo modal */
 .loading-modal-content .spinner {
-  border: 5px solid #E0CCA7;
-  border-top-color: #8b3c58;
+  border: 5px solid #C0CFE1;
+  border-top-color: #0C3175;
   width: 4rem;
   height: 4rem;
 }
 
 /* Texto en modo modal */
 .loading-modal-content .loading-text {
-  color: #6E1F34;
+  color: #0C3175;
   font-size: 1.25rem;
   font-weight: 600;
   text-align: center;

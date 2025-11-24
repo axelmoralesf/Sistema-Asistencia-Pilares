@@ -1,16 +1,16 @@
 /* Franja inferior – SIEMPRE full width */
 .pilares-footer {
-  background-color: #6E1F34;
+  background-color: #0C3175;
   color: #FFFFFF;
   padding: 1.5rem 2rem;
   margin-top: auto;
-  width: 100%;                 /* Importante para que llegue de borde a borde */
+  width: 100%;
 }
 
 /* Contenedor interno centrado en desktop */
 .footer-container {
   max-width: 1400px;
-  margin: 30px auto 0;          /* centra horizontalmente, deja margen arriba */
+  margin: 30px auto 0;
   display: flex;
   align-items: center;
   justify-content: space-between;

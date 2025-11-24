@@ -1,18 +1,18 @@
 /* Franja superior – SIEMPRE full width */
 .pilares-header {
-  background-color: #6E1F34;
+  background-color: #0C3175;
   color: #FFFFFF;
   padding: 1.5rem 2rem;
-  box-shadow: 0 2px 8px rgba(110, 31, 52, 0.3);
-  width: 100%;             /* ANTES: width: fit-content; */
+  box-shadow: 0 2px 8px rgba(12, 49, 117, 0.3);
+  width: 100%;
   position: relative;
   z-index: 2;
 }
 
 /* Contenedor interno centrado y limitado en desktop */
 .header-container {
-  max-width: 1400px;       /* ajusta si quieres */
-  margin: 0 auto;          /* centra en pantallas grandes */
+  max-width: 1400px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -25,14 +25,11 @@
   gap: 1rem;
 }
 
-.logo_cdmx {
-  width: 112px;
-  height: auto;
-}
 
 .logo {
   width: 397px;
   height: auto;
+  
 }
 
 /* Responsive: reducir logos en móvil para que no se corten */
@@ -44,10 +41,6 @@
   .header-container {
     max-width: 100%;
     margin: 0;
-  }
-
-  .logo_cdmx {
-    width: 80px;
   }
 
   .logo {

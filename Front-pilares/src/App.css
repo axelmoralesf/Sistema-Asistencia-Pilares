@@ -1,24 +1,26 @@
 .app {
   min-height: 100vh;
-  width: 100%;              /* Ocupa todo el ancho de la ventana */
+  width: 100%;
   display: flex;
   flex-direction: column;
-  background-color: #6e1f34; /* Fondo general vino */
+  background-color: #0C3175;
+  margin: 0;
+  padding: 0;
 }
 
-/* Barra de navegación superior (si la usas) */
+/* Barra de navegación superior */
 .main-nav {
   background-color: #FFFFFF;
-  box-shadow: 0 0.125rem 0.25rem rgba(110, 31, 52, 0.1);
+  box-shadow: 0 0.125rem 0.25rem rgba(12, 49, 117, 0.1);
   position: sticky;
   top: 0;
   z-index: 100;
-  width: 100%;              /* Asegura franja completa */
+  width: 100%;
 }
 
 /* Contenedor interno del nav centrado en pantallas grandes */
 .nav-container {
-  max-width: 87.5rem;       /* 1400px aprox */
+  max-width: 87.5rem;
   margin: 0 auto;
   display: flex;
   gap: 2rem;
@@ -30,7 +32,7 @@
   font-family: 'Open Sans', sans-serif;
   font-size: 1rem;
   font-weight: 600;
-  color: #6E1F34;
+  color: #0C3175;
   text-decoration: none;
   padding: 1rem 0;
   border-bottom: 3px solid transparent;
@@ -38,13 +40,18 @@
 }
 
 .nav-link:hover {
-  color: #7D323F;
-  border-bottom-color: #E1CAA8;
+  color: #A0B5D3;
+  border-bottom-color: #A1C94B;
 }
 
 .nav-link.active {
-  color: #7D323F;
-  border-bottom-color: #7D323F;
+  color: #0C3175;
+  border-bottom-color: #0C3175;
+}
+
+.nav-link:focus-visible {
+  outline: 3px solid #2b6135;
+  outline-offset: 2px;
 }
 
 /* Contenido principal de cada página */
@@ -54,6 +61,7 @@
   width: 100%;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
 
 /* Responsive */
@@ -61,7 +69,7 @@
   .nav-container {
     padding: 0 1rem;
     gap: 1rem;
-    max-width: 100%;        /* En móvil, sin límite de ancho */
+    max-width: 100%;
   }
 
   .main-content {

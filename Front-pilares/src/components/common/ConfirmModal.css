@@ -1,7 +1,7 @@
 /* ConfirmModal.css */
 .confirm-modal {
-  background-color: #E0CCA7;
-  border: 4px solid #6E1F34;
+  background-color: #C0CFE1;
+  border: 4px solid #0C3175;
   border-radius: 1.25rem;
   padding: 2.5rem 2rem;
   max-width: 35rem;
@@ -26,7 +26,7 @@
   font-family: 'Montserrat', sans-serif;
   font-size: 1.5rem;
   font-weight: 700;
-  color: #6E1F34;
+  color: #0C3175;
   margin-bottom: 2rem;
   line-height: 1.4;
 }
@@ -52,29 +52,34 @@
 }
 
 .confirm-yes {
-  background-color: #6E1F34;
-  color: #E0CCA7;
+  background-color: #0C3175;
+  color: #C0CFE1;
 }
 
 .confirm-yes:hover {
-  background-color: #5a1829;
+  background-color: #0a2860;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(110, 31, 52, 0.4);
+  box-shadow: 0 4px 12px rgba(12, 49, 117, 0.4);
 }
 
 .confirm-no {
-  background-color: #6E1F34;
-  color: #E0CCA7;
+  background-color: #0C3175;
+  color: #C0CFE1;
 }
 
 .confirm-no:hover {
-  background-color: #5a1829;
+  background-color: #0a2860;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(110, 31, 52, 0.4);
+  box-shadow: 0 4px 12px rgba(12, 49, 117, 0.4);
 }
 
 .confirm-btn:active {
   transform: translateY(0);
+}
+
+.confirm-btn:focus-visible {
+  outline: 3px solid #2b6135;
+  outline-offset: 2px;
 }
 
 /* Responsive */

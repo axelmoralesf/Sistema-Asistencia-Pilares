@@ -1,3 +1,6 @@
+/* ========================================
+   BOTÓN DE REGRESO
+   ======================================== */
 .control-panel-right {
   width: 100%;
   display: flex;
@@ -6,9 +9,8 @@
   margin-bottom: 15px;
 }
 
-
 .back-button {
-  background: #5a0b19;
+  background: #0C3175;
   color: white;
   border: none;
   padding: 8px 14px;
@@ -16,20 +18,29 @@
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .back-button:hover {
-  background: #7a1225;
+  background: #0a2860;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(12, 49, 117, 0.3);
 }
 
+.back-button:focus-visible {
+  outline: 3px solid #2b6135;
+  outline-offset: 2px;
+}
 
-/* GENERAL */
+/* ========================================
+   GENERAL
+   ======================================== */
 .reports-home {
   padding: 20px;
-  background: #e8cfa9; /* fondo beige */
+  background: #C0CFE1;
   min-height: 100vh;
-  color: #5a0b19;
-  font-family: 'Segoe UI', sans-serif;
+  color: #0C3175;
+  font-family: 'Open Sans', sans-serif;
 }
 
 .title-main {
@@ -37,30 +48,42 @@
   font-size: 30px;
   font-weight: bold;
   margin-bottom: 20px;
+  font-family: 'Montserrat', sans-serif;
+  color: #0C3175;
 }
 
-/* GRID PRINCIPAL */
+/* ========================================
+   GRID PRINCIPAL
+   ======================================== */
 .main-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 25px;
 }
 
-/* PANEL IZQUIERDO */
+/* ========================================
+   PANEL IZQUIERDO
+   ======================================== */
 .left-panel {
-  background: #f7eadb;
+  background: #FFFFFF;
   padding: 25px;
-  border: 4px solid #5a0b19;
+  border: 4px solid #0C3175;
   border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(12, 49, 117, 0.1);
 }
 
 .panel-title {
   text-align: center;
   font-size: 22px;
   margin-bottom: 15px;
+  font-family: 'Montserrat', sans-serif;
+  color: #0C3175;
+  font-weight: 700;
 }
 
-/* BUSCADOR */
+/* ========================================
+   BUSCADOR
+   ======================================== */
 .search-row {
   display: flex;
   align-items: center;
@@ -68,7 +91,7 @@
 }
 
 .tag {
-  background: #5a0b19;
+  background: #0C3175;
   color: white;
   padding: 8px 14px;
   border-radius: 10px;
@@ -78,20 +101,50 @@
 .search-input {
   flex: 1;
   padding: 10px;
-  border: 2px solid #5a0b19;
+  border: 2px solid #0C3175;
   border-radius: 10px;
+  font-size: 1rem;
+  color: #0C3175;
+  background-color: #FFFFFF;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #0C3175;
+  box-shadow: 0 0 0 3px rgba(12, 49, 117, 0.1);
+}
+
+.search-input:focus-visible {
+  outline: 3px solid #0C3175;
+  outline-offset: 2px;
 }
 
 .btn-search {
-  background: #5a0b19;
+  background: #0C3175;
   color: white;
   padding: 10px 18px;
   border-radius: 10px;
   border: none;
   cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
 }
 
-/* FILTROS */
+.btn-search:hover {
+  background: #0a2860;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(12, 49, 117, 0.3);
+}
+
+.btn-search:focus-visible {
+  outline: 3px solid #2b6135;
+  outline-offset: 2px;
+}
+
+/* ========================================
+   FILTROS
+   ======================================== */
 .filters-grid {
   margin-top: 15px;
   display: grid;
@@ -107,81 +160,143 @@
 .input-group label {
   margin-bottom: 5px;
   font-weight: bold;
+  color: #0C3175;
+  font-size: 0.95rem;
 }
 
-.input-group input {
-  border: 2px solid #5a0b19;
+.input-group input,
+.input-group select {
+  border: 2px solid #0C3175;
   padding: 10px;
   border-radius: 10px;
+  font-size: 1rem;
+  color: #0C3175;
+  background-color: #FFFFFF;
+  transition: all 0.3s ease;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+  outline: none;
+  border-color: #0C3175;
+  box-shadow: 0 0 0 3px rgba(12, 49, 117, 0.1);
+}
+
+.input-group input:focus-visible,
+.input-group select:focus-visible {
+  outline: 3px solid #0C3175;
+  outline-offset: 2px;
 }
 
 .full {
   grid-column: span 2;
 }
 
-/* BOTÓN REPORTE */
+/* ========================================
+   BOTÓN REPORTE
+   ======================================== */
 .btn-report {
   margin-top: 20px;
   display: block;
   width: 200px;
-  background: #5a0b19;
+  background: #0C3175;
   color: white;
   padding: 12px;
   border-radius: 10px;
   border: none;
   cursor: pointer;
   font-weight: bold;
+  font-family: 'Montserrat', sans-serif;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
 }
 
-/* PANEL DERECHO */
+.btn-report:hover {
+  background: #0a2860;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(12, 49, 117, 0.3);
+}
+
+.btn-report:focus-visible {
+  outline: 3px solid #2b6135;
+  outline-offset: 2px;
+}
+
+/* ========================================
+   PANEL DERECHO
+   ======================================== */
 .right-panel {
   background: white;
-  border: 4px solid #5a0b19;
+  border: 4px solid #0C3175;
   border-radius: 10px;
   padding: 25px;
+  box-shadow: 0 4px 12px rgba(12, 49, 117, 0.1);
 }
 
-/* TABLA */
+/* ========================================
+   TABLA
+   ======================================== */
 .table-container {
   margin-top: 25px;
-  background: #5a0b19;
+  background: #0C3175;
   padding: 10px;
   border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(12, 49, 117, 0.15);
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  background: #f7eadb;
+  background: #FFFFFF;
   border-radius: 10px;
   overflow: hidden;
 }
 
 thead {
-  background: #5a0b19;
+  background: #0C3175;
   color: white;
 }
 
 thead th {
   padding: 12px;
   text-align: left;
+  font-weight: 700;
+  font-family: 'Montserrat', sans-serif;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
 }
 
 tbody td {
   padding: 12px;
-  border-bottom: 1px solid #d9b89e;
+  border-bottom: 1px solid #C0CFE1;
+  color: #0C3175;
+  font-size: 0.95rem;
+}
+
+tbody tr:hover {
+  background-color: #F0F4F8;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
 }
 
 .icon {
   font-size: 22px;
   cursor: pointer;
-  color: #5a0b19;
+  color: #0C3175;
+  transition: all 0.2s ease;
 }
 
+.icon:hover {
+  color: #0a2860;
+  transform: scale(1.2);
+}
 
-
-
-/* --- MODAL GENERAL --- */
+/* ========================================
+   MODAL GENERAL
+   ======================================== */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -189,7 +304,7 @@ tbody td {
   width: 100%;
   height: 100%;
   backdrop-filter: blur(6px);
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(12, 49, 117, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -198,20 +313,31 @@ tbody td {
 
 .modal {
   width: 55%;
-  background: #f8f2ed;
-  border: 3px solid #5a0b19;
+  max-width: 95vw;
+  background: #C0CFE1;
+  border: 3px solid #0C3175;
   border-radius: 10px;
   padding: 25px;
   position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 2px solid #5a0b19;
+  border-bottom: 2px solid #0C3175;
   padding-bottom: 10px;
   margin-bottom: 20px;
+}
+
+.modal-header h2 {
+  font-family: 'Montserrat', sans-serif;
+  color: #0C3175;
+  font-weight: 700;
+  font-size: 1.5rem;
 }
 
 .modal-close {
@@ -220,10 +346,23 @@ tbody td {
   font-size: 22px;
   cursor: pointer;
   font-weight: bold;
-  color: #5a0b19;
+  color: #0C3175;
+  transition: all 0.3s ease;
 }
 
-/* --- GRID DE EMPLEADOS --- */
+.modal-close:hover {
+  color: #0a2860;
+  transform: scale(1.1);
+}
+
+.modal-close:focus-visible {
+  outline: 3px solid #2b6135;
+  outline-offset: 2px;
+}
+
+/* ========================================
+   GRID DE EMPLEADOS
+   ======================================== */
 .employee-grid {
   display: flex;
   flex-wrap: wrap;
@@ -232,20 +371,35 @@ tbody td {
 }
 
 .employee-item {
-  background: #5a0b19;
+  background: #0C3175;
   padding: 8px 14px;
   color: white;
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition: all 0.2s ease;
+  font-weight: 600;
 }
 
 .employee-item:hover {
-  background: #7a1225;
+  background: #0a2860;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(12, 49, 117, 0.3);
 }
 
-/* --- FOOTER --- */
+.employee-item:focus-visible {
+  outline: 3px solid #2b6135;
+  outline-offset: 2px;
+}
+
+.employee-item.selected {
+  background: #2b6135;
+  border: 2px solid #A1C94B;
+}
+
+/* ========================================
+   FOOTER DEL MODAL
+   ======================================== */
 .modal-footer {
   margin-top: 25px;
   display: flex;
@@ -255,16 +409,136 @@ tbody td {
 .modal-save {
   width: 40%;
   padding: 10px;
-  background: #5a0b19;
+  background: #0C3175;
   color: white;
-  border: 2px solid #5a0b19;
+  border: 2px solid #0C3175;
   border-radius: 10px;
   cursor: pointer;
   font-weight: bold;
   letter-spacing: 1px;
-  transition: 0.2s ease;
+  transition: all 0.3s ease;
+  font-family: 'Montserrat', sans-serif;
+  text-transform: uppercase;
 }
 
 .modal-save:hover {
-  background: #7a1225;
+  background: #0a2860;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(12, 49, 117, 0.3);
+}
+
+.modal-save:focus-visible {
+  outline: 3px solid #2b6135;
+  outline-offset: 2px;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 1024px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .modal {
+    width: 75%;
+  }
+}
+
+@media (max-width: 768px) {
+  .reports-home {
+    padding: 15px;
+  }
+
+  .title-main {
+    font-size: 24px;
+  }
+
+  .left-panel,
+  .right-panel {
+    padding: 20px;
+  }
+
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .full {
+    grid-column: span 1;
+  }
+
+  .modal {
+    width: 90%;
+    padding: 20px;
+  }
+
+  .modal-save {
+    width: 60%;
+  }
+
+  .employee-grid {
+    gap: 8px;
+  }
+
+  .employee-item {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+  }
+
+  table {
+    font-size: 0.85rem;
+  }
+
+  thead th,
+  tbody td {
+    padding: 8px;
+  }
+}
+
+@media (max-width: 600px) {
+  .title-main {
+    font-size: 20px;
+  }
+
+  .search-row {
+    flex-direction: column;
+  }
+
+  .btn-report {
+    width: 100%;
+  }
+
+  .modal {
+    width: 95%;
+    padding: 15px;
+  }
+
+  .modal-save {
+    width: 80%;
+  }
+
+  .back-button {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+
+  .table-container {
+    overflow-x: auto;
+  }
+
+  table {
+    min-width: 600px;
+  }
+}
+
+@media (max-width: 400px) {
+  .employee-item {
+    width: 100%;
+    text-align: center;
+  }
+
+  .modal-save {
+    width: 100%;
+  }
 }

@@ -9,12 +9,18 @@
 }
 
 .button-primary {
-  background-color: #7D323F;
+  background-color: #0C3175;
   color: #FFFFFF;
 }
 
 .button-primary:hover {
-  background-color: #6E1F34;
+  background-color: #0a2860;
+  transform: translateY(-2px);
+}
+
+.button-primary:focus-visible {
+  outline: 3px solid #2b6135;
+  outline-offset: 2px;
 }
 
 .button-small {

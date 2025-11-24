@@ -1,17 +1,23 @@
 .modal-overlay {
   position: fixed;
   z-index: 9999;
-  top: 0; left: 0; width: 100vw; height: 100vh;
-  background: rgba(110, 31, 52, 0.7);
+  top: 0; 
+  left: 0; 
+  width: 100vw; 
+  height: 100vh;
+  background: rgba(12, 49, 117, 0.7);
   backdrop-filter: blur(8px);
-  display: flex; align-items: center; justify-content: center;
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
 }
 
 .success-modal {
-  background: #E0CCA7;
+  background: #C0CFE1;
   border-radius: 18px;
   padding: 2.7rem 3.3rem;
-  min-width: 380px; max-width: 95vw;
+  min-width: 380px; 
+  max-width: 95vw;
   min-height: 250px;
   box-shadow: 0 10px 40px rgba(0,0,0,0.37);
   display: flex;
@@ -32,7 +38,7 @@
 
 .success-msg {
   color: #FFF;
-  background: #6E1F34;
+  background: #0C3175;
   padding: 1rem 1.8rem;
   border-radius: 12px;
   font-family: 'Montserrat', sans-serif;
@@ -42,4 +48,21 @@
   margin-top: 0.7rem;
   box-shadow: 0 2px 9px rgba(30,0,0,0.13);
   letter-spacing: 1px;
+}
+
+@media (max-width: 600px) {
+  .success-modal {
+    min-width: 300px;
+    padding: 2rem 2rem;
+  }
+
+  .success-circle svg {
+    width: 80px;
+    height: 80px;
+  }
+
+  .success-msg {
+    font-size: 1.5rem;
+    padding: 0.8rem 1.5rem;
+  }
 }

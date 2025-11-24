@@ -10,21 +10,11 @@ const Footer = () => {
       <div className="footer-container">
         <div className="footer-logo">
           <img
-            src={logo_cdmx_f}
-            alt="CDMX"
-            className="logo_cdmx_f"
-          />
-          <img
             src={logo_f}
             alt="PILARES"
             className="logo_f"
           />
         </div>
-        <img
-          src={logo_gob}
-          alt="Gobierno de la Ciudad de México"
-          className="logo_gob"
-        />
       </div>
     </footer>
   );

@@ -1,4 +1,4 @@
-/* Estilos globales del Sistema PILARES */
+/* Estilos globales del Sistema PILARES - ACTUALIZADO */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500;600;700&display=swap');
 
 /* Reset básico */
@@ -6,6 +6,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Asegurar que todo puede ocupar el 100% de ancho y alto */
@@ -15,14 +16,27 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
+  scroll-behavior: smooth;
 }
 
 /* Variables globales */
 :root {
-  --color-vino-bordo: #6E1F34;
-  --color-guinda-oscuro: #7D323F;
-  --color-beige-claro: #E0CCA7;
-  --color-beige-intermedio: #E1CAA8;
+  /* Colores principales - NUEVA PALETA AZUL */
+  --color-azul-oscuro: #0C3175;
+  --color-azul-medio: #A0B5D3;
+  --color-azul-claro: #C0CFE1;
+  
+  /* Backgrounds */
+  --color-gris-claro: #DADADA;
+  --color-blanco: #FFFFFF;
+  
+  /* Status */
+  --color-verde-oscuro: #2b6135;
+  --color-verde-claro: #A1C94B;
+  --color-rojo-error: #E95455;
+  --color-rosa-claro: #FF7688;
+  
+  /* Tipografía */
   --font-primary: 'Montserrat', sans-serif;
   --font-secondary: 'Open Sans', sans-serif;
 }
@@ -31,15 +45,17 @@ body {
 body {
   font-family: var(--font-secondary);
   font-size: 16px;
-  color: var(--color-vino-bordo);
-  background-color: var(--color-beige-claro);
+  color: var(--color-azul-oscuro);
+  background-color: var(--color-azul-claro);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* Root de React: full height y full width */
 #root {
   min-height: 100vh;
-  width: 100%;          /* Importante para evitar columnas vacías */
+  width: 100%;
   display: flex;
   flex-direction: column;
 }
@@ -53,5 +69,5 @@ h5,
 h6 {
   font-family: var(--font-primary);
   font-weight: 600;
-  color: var(--color-vino-bordo);
+  color: var(--color-azul-oscuro);
 }

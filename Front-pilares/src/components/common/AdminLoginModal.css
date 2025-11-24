@@ -4,7 +4,7 @@
   left: 0;
   width: 100vw; 
   height: 100vh;
-  background-color: rgba(110, 31, 52, 0.85);
+  background-color: rgba(12, 49, 117, 0.85);
   backdrop-filter: blur(0.375rem);
   display: flex;
   justify-content: center;
@@ -13,7 +13,7 @@
 }
 
 .admin-modal {
-  background-color: #E0CCA7;
+  background-color: #C0CFE1;
   border-radius: 1.25rem;
   padding: 2.5rem 2rem 2rem 2rem;
   min-width: 22.5rem; 
@@ -29,13 +29,24 @@
   background: transparent; 
   border: none;
   font-size: 2rem; 
-  color: #6E1F34;
+  color: #0C3175;
   cursor: pointer; 
   width: 2.5rem; 
   height: 2.5rem;
   display: flex; 
   align-items: center; 
   justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+  color: #0a2860;
+  transform: scale(1.1);
+}
+
+.modal-close:focus-visible {
+  outline: 3px solid #0C3175;
+  outline-offset: 2px;
 }
 
 .modal-icon {
@@ -47,14 +58,14 @@
 .modal-icon svg {
   width: 100%; 
   height: 100%;
-  fill: #6E1F34;
+  fill: #0C3175;
 }
 
 .modal-title {
   font-family: 'Montserrat', sans-serif;
   font-size: 1.1rem;
   font-weight: 700;
-  color: #6E1F34;
+  color: #0C3175;
   text-align: center;
   margin-bottom: 2rem;
 }
@@ -73,28 +84,34 @@
 
 .form-group label {
   font-weight: 700; 
-  color: #6E1F34;
+  color: #0C3175;
   font-family: 'Montserrat', sans-serif;
 }
 
 .form-group input {
   font-size: 1rem;
-  color: #6E1F34;
+  color: #0C3175;
   background-color: #FFF;
-  border: 3px solid #6E1F34;
+  border: 3px solid #0C3175;
   border-radius: 0.75rem;
   padding: 0.8rem 1.2rem;
+  transition: all 0.3s ease;
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: #7D323F;
-  box-shadow: 0 0 0 3px rgba(125, 50, 63, 0.12);
+  border-color: #0C3175;
+  box-shadow: 0 0 0 3px rgba(12, 49, 117, 0.12);
+}
+
+.form-group input:focus-visible {
+  outline: 3px solid #0C3175;
+  outline-offset: 2px;
 }
 
 .modal-submit-btn {
-  background-color: #7D323F;
-  color: #E0CCA7;
+  background-color: #0C3175;
+  color: #C0CFE1;
   font-family: 'Montserrat', sans-serif;
   font-weight: 700;
   font-size: 1.1rem;
@@ -102,12 +119,19 @@
   border-radius: 0.75rem;
   padding: 1rem 2rem; 
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
 }
 
 .modal-submit-btn:hover {
-  background: #6E1F34;
-  color: #fff;
+  background: #0a2860;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(12, 49, 117, 0.3);
+}
+
+.modal-submit-btn:focus-visible {
+  outline: 3px solid #2b6135;
+  outline-offset: 2px;
 }
 
 @media (max-width: 768px) {
@@ -118,5 +142,10 @@
 
   .modal-title {
     font-size: 1rem;
+  }
+
+  .modal-icon {
+    width: 3.75rem;
+    height: 3.75rem;
   }
 }

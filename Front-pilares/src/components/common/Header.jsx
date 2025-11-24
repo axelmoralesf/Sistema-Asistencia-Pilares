@@ -9,11 +9,6 @@ const Header = () => {
       <div className="header-container">
         <div className="pilares-logo">
           <img
-            src={logo_cdmx}
-            alt="CDMX"
-            className="logo_cdmx"
-          />
-          <img
             src={logo}
             alt="PILARES"
             className="logo"
