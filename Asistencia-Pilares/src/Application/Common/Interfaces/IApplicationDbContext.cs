@@ -12,7 +12,8 @@ namespace AsistenciaAPI.Application.Common.Interfaces
         DbSet<Rol> Roles { get; }
         DbSet<HorarioLaboral> HorariosLaborales { get; }
         DbSet<RegistroAsistencia> RegistrosAsistencia { get; }
-
+        DbSet<ReporteGuardado> ReportesGuardados { get; }
+        
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

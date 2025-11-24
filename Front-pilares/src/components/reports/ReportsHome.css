@@ -81,6 +81,35 @@
   font-weight: 700;
 }
 
+/* Chip del empleado seleccionado (general) */
+.selected-employee-chip {
+  display: inline-flex;
+  align-items: center;
+  background: #0C3175;
+  color: #fff;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  gap: 6px;
+}
+
+.chip-close {
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0 2px;
+  border-radius: 50%;
+}
+
+.chip-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
 /* ========================================
    BUSCADOR
    ======================================== */
@@ -88,6 +117,36 @@
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+/* Contenedor del input con chip dentro */
+.search-input-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+/* input con espacio para el chip */
+.search-input-with-chip {
+  width: 100%;
+  padding-left: 120px; /* ajusta si tu chip es más largo o corto */
+}
+
+/* Chip cuando va dentro del input */
+.selected-employee-chip.inside {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-bottom: 0;
+  max-width: calc(100% - 20px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none; /* el chip no bloquea el foco del input */
+}
+
+.selected-employee-chip.inside .chip-close {
+  pointer-events: auto; /* pero sí permite hacer clic en la X */
 }
 
 .tag {
@@ -211,10 +270,16 @@
   transition: all 0.3s ease;
 }
 
-.btn-report:hover {
+.btn-report:hover:not(:disabled) {
   background: #0a2860;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(12, 49, 117, 0.3);
+}
+
+.btn-report:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .btn-report:focus-visible {
@@ -231,6 +296,45 @@
   border-radius: 10px;
   padding: 25px;
   box-shadow: 0 4px 12px rgba(12, 49, 117, 0.1);
+}
+
+/* Resumen de parámetros (panel derecho) */
+.summary-card {
+  margin-top: 15px;
+  border-radius: 10px;
+  border: 2px solid #0C3175;
+  background: #F5F7FB;
+  padding: 12px 16px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px solid #dde3f0;
+  font-size: 0.95rem;
+}
+
+.summary-row:last-child {
+  border-bottom: none;
+}
+
+.summary-label {
+  font-weight: 600;
+  color: #0C3175;
+}
+
+.summary-value {
+  font-weight: 500;
+  color: #1a2a4f;
+}
+
+.summary-row-strong {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 2px solid #0C3175;
+  font-size: 1rem;
 }
 
 /* ========================================
@@ -282,6 +386,9 @@ tbody tr:last-child td {
   border-bottom: none;
 }
 
+/* ========================================
+   ICONOS DE LA TABLA
+   ======================================== */
 .icon {
   font-size: 22px;
   cursor: pointer;
@@ -294,8 +401,19 @@ tbody tr:last-child td {
   transform: scale(1.2);
 }
 
+.icon-delete {
+  color: #dc3545;
+  font-size: 20px;
+  transition: all 0.2s ease;
+}
+
+.icon-delete:hover {
+  color: #a71d2a;
+  transform: scale(1.25);
+}
+
 /* ========================================
-   MODAL GENERAL
+   MODAL GENERAL (Empleados / Confirmaciones)
    ======================================== */
 .modal-overlay {
   position: fixed;
@@ -333,7 +451,8 @@ tbody tr:last-child td {
   margin-bottom: 20px;
 }
 
-.modal-header h2 {
+.modal-header h2,
+.modal-header h3 {
   font-family: 'Montserrat', sans-serif;
   color: #0C3175;
   font-weight: 700;
@@ -360,9 +479,44 @@ tbody tr:last-child td {
   outline-offset: 2px;
 }
 
-/* ========================================
-   GRID DE EMPLEADOS
-   ======================================== */
+.modal-content {
+  padding: 10px 0;
+}
+
+/* FOOTER DEL MODAL (botón Aceptar) */
+.modal-footer {
+  margin-top: 25px;
+  display: flex;
+  justify-content: center;
+}
+
+.modal-save {
+  width: 40%;
+  padding: 10px;
+  background: #0C3175;
+  color: white;
+  border: 2px solid #0C3175;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  font-family: 'Montserrat', sans-serif;
+  text-transform: uppercase;
+}
+
+.modal-save:hover {
+  background: #0a2860;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(12, 49, 117, 0.3);
+}
+
+.modal-save:focus-visible {
+  outline: 3px solid #2b6135;
+  outline-offset: 2px;
+}
+
+/* GRID DE EMPLEADOS */
 .employee-grid {
   display: flex;
   flex-wrap: wrap;
@@ -398,38 +552,165 @@ tbody tr:last-child td {
 }
 
 /* ========================================
-   FOOTER DEL MODAL
+   MODAL DE VISTA PREVIA
    ======================================== */
-.modal-footer {
-  margin-top: 25px;
+.preview-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
   display: flex;
   justify-content: center;
+  align-items: center;
+  z-index: 3000;
+  animation: fadeIn 0.3s ease;
 }
 
-.modal-save {
-  width: 40%;
-  padding: 10px;
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.preview-modal {
+  background: #FFFFFF;
+  border: 4px solid #0C3175;
+  border-radius: 15px;
+  width: 90%;
+  max-width: 1000px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.preview-header {
   background: #0C3175;
   color: white;
-  border: 2px solid #0C3175;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: bold;
-  letter-spacing: 1px;
-  transition: all 0.3s ease;
+  padding: 20px 25px;
+  border-radius: 11px 11px 0 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.preview-title {
+  flex: 1;
+  text-align: center;
   font-family: 'Montserrat', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.preview-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  border-radius: 5px;
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.preview-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-50%) rotate(90deg);
+}
+
+.preview-content {
+  padding: 25px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.preview-info {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.preview-nombre {
+  color: #0C3175;
+  font-weight: bold;
+  font-size: 1.3rem;
+  margin: 0 0 10px 0;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.preview-total {
+  color: #0C3175;
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 0;
+  font-family: 'Open Sans', sans-serif;
+}
+
+.preview-table-container {
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 2px solid #0C3175;
+}
+
+.preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.preview-table thead {
+  background: #0C3175;
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.preview-table thead th {
+  padding: 15px 12px;
+  text-align: left;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
   text-transform: uppercase;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
 }
 
-.modal-save:hover {
-  background: #0a2860;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(12, 49, 117, 0.3);
+.preview-table tbody td {
+  padding: 12px;
+  border-bottom: 1px solid #C0CFE1;
+  color: #0C3175;
+  font-size: 0.95rem;
 }
 
-.modal-save:focus-visible {
-  outline: 3px solid #2b6135;
-  outline-offset: 2px;
+.preview-table tbody tr:hover {
+  background-color: #F0F4F8;
+}
+
+.preview-table tbody tr:last-child td {
+  border-bottom: none;
 }
 
 /* ========================================
@@ -473,10 +754,6 @@ tbody tr:last-child td {
     padding: 20px;
   }
 
-  .modal-save {
-    width: 60%;
-  }
-
   .employee-grid {
     gap: 8px;
   }
@@ -493,6 +770,45 @@ tbody tr:last-child td {
   thead th,
   tbody td {
     padding: 8px;
+  }
+
+  .preview-modal {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .preview-header {
+    padding: 15px 50px 15px 20px;
+  }
+
+  .preview-title {
+    font-size: 1.2rem;
+  }
+
+  .preview-close {
+    right: 15px;
+  }
+
+  .preview-content {
+    padding: 15px;
+  }
+
+  .preview-nombre {
+    font-size: 1.1rem;
+  }
+
+  .preview-total {
+    font-size: 0.9rem;
+  }
+
+  .preview-table thead th,
+  .preview-table tbody td {
+    padding: 10px 8px;
+    font-size: 0.85rem;
+  }
+
+  .modal-save {
+    width: 60%;
   }
 }
 
@@ -514,10 +830,6 @@ tbody tr:last-child td {
     padding: 15px;
   }
 
-  .modal-save {
-    width: 80%;
-  }
-
   .back-button {
     padding: 6px 12px;
     font-size: 14px;
@@ -529,6 +841,35 @@ tbody tr:last-child td {
 
   table {
     min-width: 600px;
+  }
+
+  .icon {
+    font-size: 18px;
+  }
+
+  .icon-delete {
+    font-size: 17px;
+  }
+
+  .preview-table {
+    font-size: 0.8rem;
+  }
+
+  .preview-table thead th,
+  .preview-table tbody td {
+    padding: 8px 6px;
+  }
+
+  .preview-nombre {
+    font-size: 1rem;
+  }
+
+  .preview-total {
+    font-size: 0.85rem;
+  }
+
+  .modal-save {
+    width: 80%;
   }
 }
 

@@ -10,11 +10,12 @@ namespace AsistenciaAPI.Infrastructure.Persistence
         {
         }
 
-    public DbSet<Empleado> Empleados { get; set; }
-    public DbSet<Area> Areas { get; set; }
-    public DbSet<Rol> Roles { get; set; }
-    public DbSet<HorarioLaboral> HorariosLaborales { get; set; }
-    public DbSet<RegistroAsistencia> RegistrosAsistencia { get; set; }
+        public DbSet<Empleado> Empleados { get; set; }
+        public DbSet<Area> Areas { get; set; }
+        public DbSet<Rol> Roles { get; set; }
+        public DbSet<HorarioLaboral> HorariosLaborales { get; set; }
+        public DbSet<RegistroAsistencia> RegistrosAsistencia { get; set; }
+        public DbSet<ReporteGuardado> ReportesGuardados { get; set; } // ✅ NUEVO
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -25,6 +26,7 @@ namespace AsistenciaAPI.Infrastructure.Persistence
             modelBuilder.Entity<Rol>().ToTable("Roles");
             modelBuilder.Entity<HorarioLaboral>().ToTable("HorariosLaborales");
             modelBuilder.Entity<RegistroAsistencia>().ToTable("RegistrosAsistencia");
+            modelBuilder.Entity<ReporteGuardado>().ToTable("ReportesGuardados"); // ✅ NUEVO
 
             modelBuilder.Entity<Empleado>()
                 .HasMany(e => e.Horarios)
@@ -35,6 +37,13 @@ namespace AsistenciaAPI.Infrastructure.Persistence
                 .HasMany(e => e.Asistencias)
                 .WithOne(a => a.Empleado)
                 .HasForeignKey(a => a.EmpleadoId);
+
+            // ✅ NUEVO: Relación ReporteGuardado -> Empleado (opcional)
+            modelBuilder.Entity<ReporteGuardado>()
+                .HasOne(r => r.Empleado)
+                .WithMany()
+                .HasForeignKey(r => r.EmpleadoId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }
