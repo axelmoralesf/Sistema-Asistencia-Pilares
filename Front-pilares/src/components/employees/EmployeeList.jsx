@@ -236,6 +236,12 @@ const EmployeeList = () => {
 
   // ============ EDITAR EMPLEADO ============
   const handleEditEmployee = (employee) => {
+    // Solo permitir editar si el empleado está activo
+    if (!employee.active) {
+      alert('No se pueden editar los datos de empleados inactivos. Activa el empleado primero.');
+      return;
+    }
+    
     setModalData({
       isNew: false,
       employee: { ...employee }
@@ -547,9 +553,10 @@ const EmployeeList = () => {
                   <td>
                     <div className="action-buttons">
                       <button
-                        className="btn-edit"
+                        className={`btn-edit ${!emp.active ? 'disabled' : ''}`}
                         onClick={() => handleEditEmployee(emp)}
-                        title="Editar"
+                        title={emp.active ? 'Editar' : 'No se puede editar un empleado inactivo'}
+                        disabled={!emp.active}
                       >
                         ✏️
                       </button>
@@ -559,13 +566,6 @@ const EmployeeList = () => {
                         title={emp.active ? 'Desactivar' : 'Activar'}
                       >
                         {emp.active ? '🔒' : '🔓'}
-                      </button>
-                      <button
-                        className="btn-delete"
-                        onClick={() => handleDeleteEmployee(emp.id)}
-                        title="Eliminar"
-                      >
-                        🗑️
                       </button>
                     </div>
                   </td>
