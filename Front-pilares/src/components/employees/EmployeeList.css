@@ -310,6 +310,19 @@
   transform: scale(1.2);
 }
 
+/* Estilos para botón de editar deshabilitado */
+.btn-edit.disabled,
+.btn-edit:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  filter: grayscale(100%);
+}
+
+.btn-edit.disabled:hover,
+.btn-edit:disabled:hover {
+  transform: none;
+}
+
 /* Scrollbar personalizado para tabla */
 .table-container::-webkit-scrollbar {
   height: 10px;
