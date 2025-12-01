@@ -239,49 +239,64 @@ const ReportsHome = () => {
         return;
       }
 
-      // Determinar qué empleados incluir en el reporte
+      let registros = [];
       let empleadoId = null;
-      let empleadoIds = null;
-      
+
+      // Determinar qué empleados incluir en el reporte
       if (isTodosSelected) {
-        // Todos los empleados
-        empleadoId = null;
-        empleadoIds = null;
+        // Todos los empleados - hacer una sola petición sin filtro
+        const response = await axios.post(`${API_URL}/reportes`, {
+          empleadoId: null,
+          fechaInicio: filters.fechaInicio,
+          fechaFin: filters.fechaFin,
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        registros = response.data || [];
       } else if (selectedEmployees.length === 1) {
-        // Un solo empleado - usar empleadoId
+        // Un solo empleado
         empleadoId = selectedEmployees[0].id;
-        empleadoIds = null;
+        const response = await axios.post(`${API_URL}/reportes`, {
+          empleadoId: empleadoId,
+          fechaInicio: filters.fechaInicio,
+          fechaFin: filters.fechaFin,
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        registros = response.data || [];
       } else if (selectedEmployees.length > 1) {
-        // Múltiples empleados - enviar array de IDs
-        empleadoId = null;
-        empleadoIds = selectedEmployees.map(emp => emp.id);
+        // Múltiples empleados - hacer una petición por cada uno y combinar resultados
+        const promises = selectedEmployees.map(emp =>
+          axios.post(`${API_URL}/reportes`, {
+            empleadoId: emp.id,
+            fechaInicio: filters.fechaInicio,
+            fechaFin: filters.fechaFin,
+          }, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          })
+        );
+
+        const responses = await Promise.all(promises);
+        registros = responses.flatMap(response => response.data || []);
       }
 
-      const requestData = {
-        empleadoId: empleadoId,
-        empleadoIds: empleadoIds,
-        fechaInicio: filters.fechaInicio,
-        fechaFin: filters.fechaFin,
-      };
-
-      // 1) Obtener registros del periodo
-      const response = await axios.post(`${API_URL}/reportes`, requestData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      const registros = response.data || [];
-
-      // 2) Calcular tiempo total trabajado con los mismos datos que usa el backend
+      // 2) Calcular tiempo total trabajado
       const tiempoReal = calcularTiempoDesdeRegistros(registros);
       setFilters((prev) => ({
         ...prev,
         horasTrabajadas: tiempoReal,
       }));
 
-      // 3) Generar nombre del reporte con la nueva lógica
+      // 3) Generar nombre del reporte
       const nombreReporte = generarNombreReporte(
         selectedEmployees,
         isTodosSelected,
@@ -294,7 +309,6 @@ const ReportsHome = () => {
         fechaInicio: filters.fechaInicio,
         fechaFin: filters.fechaFin,
         empleadoId: empleadoId,
-        empleadoIds: empleadoIds,
       };
 
       const saveResponse = await axios.post(`${API_URL}/reportes/guardar`, guardarDto, {
@@ -342,7 +356,6 @@ const ReportsHome = () => {
 
       const request = {
         empleadoId: item.empleadoId || null,
-        empleadoIds: item.empleadoIds || null,
         fechaInicio: item.fechaInicio,
         fechaFin: item.fechaFin,
       };
@@ -383,7 +396,6 @@ const ReportsHome = () => {
     try {
       const request = {
         empleadoId: item.empleadoId || null,
-        empleadoIds: item.empleadoIds || null,
         fechaInicio: item.fechaInicio,
         fechaFin: item.fechaFin,
       };
