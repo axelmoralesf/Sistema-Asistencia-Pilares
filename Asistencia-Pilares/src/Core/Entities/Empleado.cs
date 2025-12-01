@@ -64,28 +64,26 @@ namespace Core.Entities
         public string? Telefono { get; set; }
         
         /// <summary>
-        /// Llave foránea al área
+        /// Llave foránea al área (OPCIONAL)
         /// </summary>
-        [Required]
-        public Guid AreaId { get; set; }
+        public Guid? AreaId { get; set; }
 
         /// <summary>
         /// Propiedad de navegación al área
         /// </summary>
         [ForeignKey(nameof(AreaId))]
-        public Area Area { get; set; }
+        public Area? Area { get; set; }
 
         /// <summary>
-        /// Llave foránea al rol
+        /// Llave foránea al rol (OPCIONAL)
         /// </summary>
-        [Required]
-        public Guid RolId { get; set; }
+        public Guid? RolId { get; set; }
 
         /// <summary>
         /// Propiedad de navegación al rol
         /// </summary>
         [ForeignKey(nameof(RolId))]
-        public Rol Rol { get; set; }
+        public Rol? Rol { get; set; }
 
         /// <summary>
         /// Horarios laborales asociados
