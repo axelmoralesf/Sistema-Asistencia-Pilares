@@ -29,7 +29,12 @@ namespace AsistenciaAPI.Infrastructure.Services
                 .Include(r => r.Empleado)
                 .Where(r => r.Fecha >= request.FechaInicio.Date && r.Fecha <= request.FechaFin.Date);
 
-            if (request.EmpleadoId.HasValue)
+            // Prioridad: EmpleadoIds (múltiples) > EmpleadoId (uno solo)
+            if (request.EmpleadoIds != null && request.EmpleadoIds.Count > 0)
+            {
+                query = query.Where(r => request.EmpleadoIds.Contains(r.EmpleadoId));
+            }
+            else if (request.EmpleadoId.HasValue)
             {
                 query = query.Where(r => r.EmpleadoId == request.EmpleadoId.Value);
             }
@@ -113,9 +118,23 @@ namespace AsistenciaAPI.Infrastructure.Services
                 .Border.SetBottomBorder(XLBorderStyleValues.Thin);
             currentRow++;
 
-            // Nombre del empleado (o "Todos")
+            // Nombre del empleado (o "Todos" o "Múltiples")
             string nombreEmpleado = "Todos";
-            if (request.EmpleadoId.HasValue && filas.Count > 0)
+            if (request.EmpleadoIds != null && request.EmpleadoIds.Count > 0)
+            {
+                // Múltiples empleados seleccionados
+                if (request.EmpleadoIds.Count == 1)
+                {
+                    var emp = filas.FirstOrDefault();
+                    nombreEmpleado = emp?.NombreEmpleado ?? "Desconocido";
+                }
+                else
+                {
+                    var empleadosUnicos = filas.Select(f => f.NombreEmpleado).Distinct().ToList();
+                    nombreEmpleado = string.Join(", ", empleadosUnicos);
+                }
+            }
+            else if (request.EmpleadoId.HasValue && filas.Count > 0)
             {
                 nombreEmpleado = filas.First().NombreEmpleado;
             }
