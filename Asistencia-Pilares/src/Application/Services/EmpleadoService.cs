@@ -43,7 +43,7 @@ namespace AsistenciaAPI.Application.Services
                 empleado.PasswordHash = _hasher.Hash(dto.Password);
             }
 
-            // Resolver o crear Area por nombre (si se proporciona)
+            // Resolver o crear Area por nombre (si se proporciona) - AHORA ES OPCIONAL
             if (!string.IsNullOrWhiteSpace(dto.NombreArea))
             {
                 var nombreArea = dto.NombreArea.Trim();
@@ -58,8 +58,12 @@ namespace AsistenciaAPI.Application.Services
 
                 empleado.AreaId = area.Id;
             }
+            else
+            {
+                empleado.AreaId = null; // Explícitamente null si no se proporciona
+            }
 
-            // Resolver o crear Rol por nombre (si se proporciona)
+            // Resolver o crear Rol por nombre (si se proporciona) - AHORA ES OPCIONAL
             if (!string.IsNullOrWhiteSpace(dto.NombreRol))
             {
                 var nombreRol = dto.NombreRol.Trim();
@@ -73,6 +77,10 @@ namespace AsistenciaAPI.Application.Services
                 }
 
                 empleado.RolId = rol.Id;
+            }
+            else
+            {
+                empleado.RolId = null; // Explícitamente null si no se proporciona
             }
 
             var horarios = dto.Horarios?.Select(h => new HorarioLaboral
@@ -142,7 +150,7 @@ namespace AsistenciaAPI.Application.Services
             empleado.Email = dto.Email;
             empleado.Telefono = dto.Telefono;
 
-            // Resolver o crear Area por nombre y asignar AreaId
+            // Resolver o crear Area por nombre y asignar AreaId - AHORA ES OPCIONAL
             if (!string.IsNullOrWhiteSpace(dto.NombreArea))
             {
                 var nombreArea = dto.NombreArea.Trim();
@@ -157,8 +165,12 @@ namespace AsistenciaAPI.Application.Services
 
                 empleado.AreaId = area.Id;
             }
+            else
+            {
+                empleado.AreaId = null; // Limpiar área si no se proporciona
+            }
 
-            // Resolver o crear Rol por nombre y asignar RolId
+            // Resolver o crear Rol por nombre y asignar RolId - AHORA ES OPCIONAL
             if (!string.IsNullOrWhiteSpace(dto.NombreRol))
             {
                 var nombreRol = dto.NombreRol.Trim();
@@ -172,6 +184,10 @@ namespace AsistenciaAPI.Application.Services
                 }
 
                 empleado.RolId = rol.Id;
+            }
+            else
+            {
+                empleado.RolId = null; // Limpiar rol si no se proporciona
             }
 
             // Reemplazar horarios: eliminar existentes y añadir nuevos
