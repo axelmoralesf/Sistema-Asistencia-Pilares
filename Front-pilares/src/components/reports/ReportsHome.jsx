@@ -109,8 +109,8 @@ const generarNombreReporte = (selectedEmployees, isTodosSelected, fechaInicio, f
     parteEmpleados = nombres.join("_");
   }
 
-  // Construir el nombre completo
-  return `Reporte${parteEmpleados}_${rangoMeses}`;
+  // Construir el nombre completo sin guion bajo antes de la fecha
+  return `Reporte${parteEmpleados}${rangoMeses}`;
 };
 
 const ReportsHome = () => {
@@ -241,18 +241,25 @@ const ReportsHome = () => {
 
       // Determinar qué empleados incluir en el reporte
       let empleadoId = null;
+      let empleadoIds = null;
+      
       if (isTodosSelected) {
-        empleadoId = null; // Todos los empleados
-      } else if (selectedEmployees.length === 1) {
-        empleadoId = selectedEmployees[0].id; // Un solo empleado
-      } else if (selectedEmployees.length > 1) {
-        // Múltiples empleados - por ahora usar null (todos)
-        // Podrías implementar lógica para generar reportes individuales
+        // Todos los empleados
         empleadoId = null;
+        empleadoIds = null;
+      } else if (selectedEmployees.length === 1) {
+        // Un solo empleado - usar empleadoId
+        empleadoId = selectedEmployees[0].id;
+        empleadoIds = null;
+      } else if (selectedEmployees.length > 1) {
+        // Múltiples empleados - enviar array de IDs
+        empleadoId = null;
+        empleadoIds = selectedEmployees.map(emp => emp.id);
       }
 
       const requestData = {
         empleadoId: empleadoId,
+        empleadoIds: empleadoIds,
         fechaInicio: filters.fechaInicio,
         fechaFin: filters.fechaFin,
       };
@@ -287,6 +294,7 @@ const ReportsHome = () => {
         fechaInicio: filters.fechaInicio,
         fechaFin: filters.fechaFin,
         empleadoId: empleadoId,
+        empleadoIds: empleadoIds,
       };
 
       const saveResponse = await axios.post(`${API_URL}/reportes/guardar`, guardarDto, {
@@ -334,6 +342,7 @@ const ReportsHome = () => {
 
       const request = {
         empleadoId: item.empleadoId || null,
+        empleadoIds: item.empleadoIds || null,
         fechaInicio: item.fechaInicio,
         fechaFin: item.fechaFin,
       };
@@ -374,6 +383,7 @@ const ReportsHome = () => {
     try {
       const request = {
         empleadoId: item.empleadoId || null,
+        empleadoIds: item.empleadoIds || null,
         fechaInicio: item.fechaInicio,
         fechaFin: item.fechaFin,
       };
