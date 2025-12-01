@@ -454,21 +454,21 @@ const ReportsHome = () => {
         return;
       }
 
-      // Obtener los IDs de empleados guardados para este reporte
+      // Verificar si tenemos los IDs de empleados guardados para este reporte
       const empleadoIds = reporteEmpleadosMap[item.id];
       let request;
 
-      if (empleadoIds === null || empleadoIds === undefined) {
-        // Todos los empleados o reporte viejo sin información guardada
+      if (empleadoIds === null) {
+        // Todos los empleados
         request = {
-          empleadoId: item.empleadoId || null,
+          empleadoId: null,
           fechaInicio: item.fechaInicio,
           fechaFin: item.fechaFin,
         };
-      } else if (empleadoIds.length === 1) {
-        // Un solo empleado
+      } else if (empleadoIds === undefined || empleadoIds.length === 1) {
+        // Un solo empleado (o reporte viejo sin info guardada)
         request = {
-          empleadoId: empleadoIds[0],
+          empleadoId: empleadoIds ? empleadoIds[0] : (item.empleadoId || null),
           fechaInicio: item.fechaInicio,
           fechaFin: item.fechaFin,
         };
