@@ -248,6 +248,7 @@ const EmployeeList = () => {
       isNew: false,
       employee: { ...employee }
     });
+    // Establecer el estado del switch basado en si el empleado es admin
     setIsAdminInModal(employee.admin || false);
     setRoleValue(employee.role || '');
     setShowPassword(false);
@@ -315,7 +316,11 @@ const EmployeeList = () => {
 
     if (email) employeeData.Email = email;
     if (phone) employeeData.Telefono = phone;
-    if (isAdminInModal && password) employeeData.Password = password;
+    
+    // Incluir contraseña si se proporciona (tanto para crear como editar)
+    if (isAdminInModal && password) {
+      employeeData.Password = password;
+    }
 
     setLoading(true);
 
@@ -739,16 +744,19 @@ const EmployeeList = () => {
                 </div>
               </div>
 
-              {modalData.isNew && isAdminInModal && (
+              {/* Mostrar campo de contraseña para administradores (crear o editar) */}
+              {isAdminInModal && (
                 <div className="form-group">
-                  <label htmlFor="password">Contraseña *</label>
+                  <label htmlFor="password">
+                    Contraseña {modalData.isNew ? '*' : '(opcional - dejar en blanco para mantener la actual)'}
+                  </label>
                   <div className="password-input-wrapper">
                     <input
                       type={showPassword ? "text" : "password"}
                       id="password"
                       name="password"
-                      required
-                      placeholder="Requerida para administradores"
+                      required={modalData.isNew}
+                      placeholder={modalData.isNew ? "Requerida para administradores" : "Dejar en blanco para no cambiar"}
                     />
                     <button
                       type="button"
