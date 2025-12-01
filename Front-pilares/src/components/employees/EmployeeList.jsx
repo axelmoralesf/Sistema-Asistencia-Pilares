@@ -248,9 +248,16 @@ const EmployeeList = () => {
       isNew: false,
       employee: { ...employee }
     });
+    
+    // Detectar si el empleado es administrador
+    const isAdmin = employee.admin === true;
+    
     // Establecer el estado del switch basado en si el empleado es admin
-    setIsAdminInModal(employee.admin || false);
-    setRoleValue(employee.role || '');
+    setIsAdminInModal(isAdmin);
+    
+    // Si es admin, establecer roleValue como 'Administrador', sino usar el rol actual
+    setRoleValue(isAdmin ? 'Administrador' : (employee.role || ''));
+    
     setShowPassword(false);
     setIsModalOpen(true);
   };
