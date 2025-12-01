@@ -60,7 +60,16 @@ namespace AsistenciaAPI.Infrastructure.Services
         public async Task<byte[]> ExportarReporteExcelAsync(ReporteRequestDto request)
         {
             var filas = await ObtenerReporteAsync(request);
+            return GenerarExcel(filas, request.FechaInicio, request.FechaFin);
+        }
 
+        public Task<byte[]> ExportarReporteExcelDesdeDatos(ExportarReporteDto dto)
+        {
+            return Task.FromResult(GenerarExcel(dto.Datos, dto.FechaInicio, dto.FechaFin));
+        }
+
+        private byte[] GenerarExcel(List<ReporteFilaDto> filas, DateTime fechaInicio, DateTime fechaFin)
+        {
             using var workbook = new XLWorkbook();
             var ws = workbook.Worksheets.Add("Reporte");
 
@@ -111,11 +120,11 @@ namespace AsistenciaAPI.Infrastructure.Services
                 .Border.SetBottomBorder(XLBorderStyleValues.Thin);
             currentRow++;
 
-            string nombreEmpleado = "Todos";
-            if (request.EmpleadoId.HasValue && filas.Count > 0)
-            {
-                nombreEmpleado = filas.First().NombreEmpleado;
-            }
+            // Obtener nombres únicos de empleados en los datos
+            var empleadosUnicos = filas.Select(f => f.NombreEmpleado).Distinct().ToList();
+            string nombreEmpleado = empleadosUnicos.Count == 0 ? "Todos" : 
+                                    empleadosUnicos.Count == 1 ? empleadosUnicos[0] :
+                                    string.Join(", ", empleadosUnicos);
 
             TimeSpan? horaMinEntrada = null;
             if (filas.Count > 0)
@@ -177,8 +186,8 @@ namespace AsistenciaAPI.Infrastructure.Services
             var parametros = new List<(string Etiqueta, string Valor)>
             {
                 ("Nombre del Empleado", nombreEmpleado),
-                ("Fecha de Inicio", request.FechaInicio.ToString("dd/MM/yyyy")),
-                ("Fecha de Fin", request.FechaFin.ToString("dd/MM/yyyy")),
+                ("Fecha de Inicio", fechaInicio.ToString("dd/MM/yyyy")),
+                ("Fecha de Fin", fechaFin.ToString("dd/MM/yyyy")),
                 ("Hora Mínima Entrada", horaMinEntrada.HasValue ? horaMinEntrada.Value.ToString(@"hh\:mm") : "N/A"),
                 ("Hora Máxima Salida", horaMaxSalida.HasValue ? horaMaxSalida.Value.ToString(@"hh\:mm") : "N/A"),
                 (totalHorasLabel, totalHorasHms)
