@@ -82,44 +82,64 @@
 }
 
 /* ========================================
-   CHIPS DE EMPLEADOS
+   BUSCADOR CON CHIPS DENTRO
    ======================================== */
-.chips-container {
+.search-row {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 10px;
-  min-height: 32px;
+  align-items: flex-start;
+  gap: 10px;
 }
 
-.employee-chip {
+/* Contenedor que simula un input con chips dentro */
+.search-input-wrapper-container {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-height: 48px;
+  padding: 8px 12px;
+  border: 2px solid #0C3175;
+  border-radius: 10px;
+  background-color: #f8f9fa;
+  cursor: default;
+  transition: all 0.3s ease;
+}
+
+.search-input-wrapper-container:hover {
+  border-color: #0a2860;
+}
+
+/* Chips inline dentro del contenedor */
+.employee-chip-inline {
   display: inline-flex;
   align-items: center;
   background: #0C3175;
   color: #fff;
   border-radius: 20px;
-  padding: 6px 12px;
+  padding: 5px 12px;
   font-size: 0.9rem;
   font-weight: 600;
-  gap: 8px;
+  gap: 6px;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
-.employee-chip:hover {
+.employee-chip-inline:hover {
   background: #0a2860;
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(12, 49, 117, 0.3);
 }
 
-.chip-close {
+.chip-close-inline {
   background: rgba(255, 255, 255, 0.2);
   border: none;
   color: #fff;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -128,59 +148,37 @@
   padding: 0;
 }
 
-.chip-close:hover {
+.chip-close-inline:hover {
   background: rgba(255, 255, 255, 0.4);
   transform: scale(1.1);
 }
 
-.chip-close:focus-visible {
+.chip-close-inline:focus-visible {
   outline: 2px solid #fff;
   outline-offset: 2px;
 }
 
-/* ========================================
-   BUSCADOR
-   ======================================== */
-.search-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-}
-
-.search-input-wrapper {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.search-input {
-  width: 100%;
-  padding: 10px;
-  border: 2px solid #0C3175;
-  border-radius: 10px;
-  font-size: 1rem;
-  color: #0C3175;
-  background-color: #FFFFFF;
-  transition: all 0.3s ease;
-}
-
-.search-input:focus {
+/* Input invisible para mostrar placeholder */
+.search-input-inline {
+  border: none;
   outline: none;
-  border-color: #0C3175;
-  box-shadow: 0 0 0 3px rgba(12, 49, 117, 0.1);
-}
-
-.search-input:focus-visible {
-  outline: 3px solid #0C3175;
-  outline-offset: 2px;
-}
-
-/* Input readonly sin cursor */
-.search-input-readonly {
+  background: transparent;
+  flex: 1;
+  min-width: 200px;
+  font-size: 1rem;
+  color: #6c757d;
   cursor: default;
-  background-color: #f8f9fa;
   user-select: none;
   pointer-events: none;
+}
+
+/* Cuando hay chips, ocultar el input */
+.search-input-inline.has-chips {
+  flex: 0;
+  min-width: 0;
+  width: 0;
+  padding: 0;
+  margin: 0;
 }
 
 .btn-search {
@@ -192,7 +190,8 @@
   cursor: pointer;
   font-weight: 600;
   transition: all 0.3s ease;
-  margin-top: 42px; /* Ajuste para alinear con el input */
+  align-self: stretch;
+  min-height: 48px;
 }
 
 .btn-search:hover {
@@ -819,22 +818,23 @@ tbody tr:last-child td {
     width: 60%;
   }
 
-  .btn-search {
-    margin-top: 0;
+  .search-row {
+    flex-direction: column;
   }
 
-  .chips-container {
-    min-height: 0;
+  .btn-search {
+    width: 100%;
+  }
+
+  .employee-chip-inline {
+    font-size: 0.85rem;
+    padding: 4px 10px;
   }
 }
 
 @media (max-width: 600px) {
   .title-main {
     font-size: 20px;
-  }
-
-  .search-row {
-    flex-direction: column;
   }
 
   .btn-report {
@@ -887,11 +887,6 @@ tbody tr:last-child td {
   .modal-save {
     width: 80%;
   }
-
-  .employee-chip {
-    font-size: 0.85rem;
-    padding: 5px 10px;
-  }
 }
 
 @media (max-width: 400px) {
@@ -902,5 +897,9 @@ tbody tr:last-child td {
 
   .modal-save {
     width: 100%;
+  }
+
+  .search-input-inline {
+    min-width: 150px;
   }
 }
