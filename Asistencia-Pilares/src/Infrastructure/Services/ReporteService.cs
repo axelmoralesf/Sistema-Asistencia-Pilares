@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 using AsistenciaAPI.Application.Common.Interfaces;
 using AsistenciaAPI.Application.DTOs;
@@ -30,12 +29,7 @@ namespace AsistenciaAPI.Infrastructure.Services
                 .Include(r => r.Empleado)
                 .Where(r => r.Fecha >= request.FechaInicio.Date && r.Fecha <= request.FechaFin.Date);
 
-            // Prioridad: EmpleadoIds (múltiples) > EmpleadoId (uno solo)
-            if (request.EmpleadoIds != null && request.EmpleadoIds.Count > 0)
-            {
-                query = query.Where(r => request.EmpleadoIds.Contains(r.EmpleadoId));
-            }
-            else if (request.EmpleadoId.HasValue)
+            if (request.EmpleadoId.HasValue)
             {
                 query = query.Where(r => r.EmpleadoId == request.EmpleadoId.Value);
             }
@@ -78,11 +72,10 @@ namespace AsistenciaAPI.Infrastructure.Services
             {
                 var pic = ws.AddPicture(logoPath);
                 pic.MoveTo(ws.Cell("A1"));
-                pic.Height = 60;   // píxeles aprox
+                pic.Height = 60;
                 pic.Width  = 160;
             }
 
-            // Dejamos un poco más de espacio después del logo
             int currentRow = 6;
 
             // ============================
@@ -99,7 +92,6 @@ namespace AsistenciaAPI.Infrastructure.Services
                 .Alignment.SetVertical(XLAlignmentVerticalValues.Center);
             currentRow++;
 
-            // Subtítulo con fecha de generación
             ws.Cell(currentRow, 1).Value = $"Generado: {DateTime.Now:dd/MM/yyyy HH:mm}";
             ws.Range(currentRow, 1, currentRow, 4).Merge();
             ws.Range(currentRow, 1, currentRow, 4).Style
@@ -108,7 +100,7 @@ namespace AsistenciaAPI.Infrastructure.Services
             currentRow += 2;
 
             // ============================
-            // 3. SECCIÓN DE PARÁMETROS DE BÚSQUEDA
+            // 3. PARÁMETROS DE BÚSQUEDA
             // ============================
             ws.Cell(currentRow, 1).Value = "PARÁMETROS DE BÚSQUEDA";
             ws.Range(currentRow, 1, currentRow, 2).Merge();
@@ -119,28 +111,12 @@ namespace AsistenciaAPI.Infrastructure.Services
                 .Border.SetBottomBorder(XLBorderStyleValues.Thin);
             currentRow++;
 
-            // Nombre del empleado (o "Todos" o "Múltiples")
             string nombreEmpleado = "Todos";
-            if (request.EmpleadoIds != null && request.EmpleadoIds.Count > 0)
-            {
-                // Múltiples empleados seleccionados
-                if (request.EmpleadoIds.Count == 1)
-                {
-                    var emp = filas.FirstOrDefault();
-                    nombreEmpleado = emp?.NombreEmpleado ?? "Desconocido";
-                }
-                else
-                {
-                    var empleadosUnicos = filas.Select(f => f.NombreEmpleado).Distinct().ToList();
-                    nombreEmpleado = string.Join(", ", empleadosUnicos);
-                }
-            }
-            else if (request.EmpleadoId.HasValue && filas.Count > 0)
+            if (request.EmpleadoId.HasValue && filas.Count > 0)
             {
                 nombreEmpleado = filas.First().NombreEmpleado;
             }
 
-            // Hora mínima de entrada
             TimeSpan? horaMinEntrada = null;
             if (filas.Count > 0)
             {
@@ -153,7 +129,6 @@ namespace AsistenciaAPI.Infrastructure.Services
                     horaMinEntrada = entradas.Min();
             }
 
-            // Hora máxima de salida
             TimeSpan? horaMaxSalida = null;
             if (filas.Count > 0)
             {
@@ -166,7 +141,6 @@ namespace AsistenciaAPI.Infrastructure.Services
                     horaMaxSalida = salidas.Max();
             }
 
-            // Total de horas trabajadas
             TimeSpan totalHoras = TimeSpan.Zero;
             foreach (var f in filas)
             {
@@ -180,7 +154,6 @@ namespace AsistenciaAPI.Infrastructure.Services
                 }
             }
 
-            // Total en forma compacta: X h / Y m / Z s
             string totalSimple;
             if (totalHoras.TotalHours >= 1)
             {
@@ -219,7 +192,6 @@ namespace AsistenciaAPI.Infrastructure.Services
                 currentRow++;
             }
 
-            // Espacio antes de la tabla
             currentRow += 1;
 
             // ============================
@@ -285,10 +257,10 @@ namespace AsistenciaAPI.Infrastructure.Services
             // ============================
             // 6. Ajuste de columnas
             // ============================
-            ws.Column(1).Width = 30; // Empleado
-            ws.Column(2).Width = 15; // Fecha
-            ws.Column(3).Width = 15; // Hora Entrada
-            ws.Column(4).Width = 15; // Hora Salida
+            ws.Column(1).Width = 30;
+            ws.Column(2).Width = 15;
+            ws.Column(3).Width = 15;
+            ws.Column(4).Width = 15;
 
             ws.Rows().AdjustToContents();
 
@@ -311,9 +283,6 @@ namespace AsistenciaAPI.Infrastructure.Services
                 FechaInicio = dto.FechaInicio,
                 FechaFin = dto.FechaFin,
                 EmpleadoId = dto.EmpleadoId,
-                EmpleadoIdsJson = dto.EmpleadoIds != null && dto.EmpleadoIds.Count > 0 
-                    ? JsonSerializer.Serialize(dto.EmpleadoIds) 
-                    : null,
                 UsuarioGenerador = usuarioGenerador
             };
 
@@ -328,9 +297,6 @@ namespace AsistenciaAPI.Infrastructure.Services
                 FechaInicio = reporte.FechaInicio,
                 FechaFin = reporte.FechaFin,
                 EmpleadoId = reporte.EmpleadoId,
-                EmpleadoIds = !string.IsNullOrEmpty(reporte.EmpleadoIdsJson) 
-                    ? JsonSerializer.Deserialize<List<Guid>>(reporte.EmpleadoIdsJson) 
-                    : null,
                 UsuarioGenerador = reporte.UsuarioGenerador
             };
         }
@@ -342,32 +308,15 @@ namespace AsistenciaAPI.Infrastructure.Services
                 .OrderByDescending(r => r.FechaGeneracion)
                 .ToListAsync();
 
-            return reportes.Select(r => {
-                List<Guid> empleadoIds = null;
-                try
-                {
-                    if (!string.IsNullOrEmpty(r.EmpleadoIdsJson))
-                    {
-                        empleadoIds = JsonSerializer.Deserialize<List<Guid>>(r.EmpleadoIdsJson);
-                    }
-                }
-                catch
-                {
-                    // Si falla la deserialización, simplemente dejamos empleadoIds como null
-                    empleadoIds = null;
-                }
-
-                return new ReporteGuardadoDto
-                {
-                    Id = r.Id,
-                    Nombre = r.Nombre,
-                    Fecha = r.FechaGeneracion.ToLocalTime().ToString("dd/MM/yyyy"),
-                    FechaInicio = r.FechaInicio,
-                    FechaFin = r.FechaFin,
-                    EmpleadoId = r.EmpleadoId,
-                    EmpleadoIds = empleadoIds,
-                    UsuarioGenerador = r.UsuarioGenerador
-                };
+            return reportes.Select(r => new ReporteGuardadoDto
+            {
+                Id = r.Id,
+                Nombre = r.Nombre,
+                Fecha = r.FechaGeneracion.ToLocalTime().ToString("dd/MM/yyyy"),
+                FechaInicio = r.FechaInicio,
+                FechaFin = r.FechaFin,
+                EmpleadoId = r.EmpleadoId,
+                UsuarioGenerador = r.UsuarioGenerador
             }).ToList();
         }
 
