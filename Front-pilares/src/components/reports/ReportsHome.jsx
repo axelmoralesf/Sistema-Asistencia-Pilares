@@ -485,6 +485,9 @@ const ReportsHome = () => {
     return "Ninguno";
   };
 
+  // Verificar si hay chips seleccionados
+  const hasChips = isTodosSelected || selectedEmployees.length > 0;
+
   return (
     <div className="reports-home">
       <h2 className="title-main">Reportes e Historial</h2>
@@ -617,41 +620,39 @@ const ReportsHome = () => {
           <h3 className="panel-title">Parámetros</h3>
 
           <div className="search-row">
-            <div className="search-input-wrapper">
-              {/* Mostrar chips */}
-              <div className="chips-container">
-                {isTodosSelected ? (
-                  <div className="employee-chip">
-                    <span>Todos los empleados</span>
+            <div className="search-input-wrapper-container">
+              {/* Chips dentro del contenedor que simula el input */}
+              {isTodosSelected ? (
+                <div className="employee-chip-inline">
+                  <span>Todos los empleados</span>
+                  <button
+                    type="button"
+                    className="chip-close-inline"
+                    onClick={clearAllSelection}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ) : (
+                selectedEmployees.map((emp) => (
+                  <div key={emp.id} className="employee-chip-inline">
+                    <span>{emp.nombre || emp.name}</span>
                     <button
                       type="button"
-                      className="chip-close"
-                      onClick={clearAllSelection}
+                      className="chip-close-inline"
+                      onClick={() => handleRemoveEmployee(emp.id)}
                     >
                       ✕
                     </button>
                   </div>
-                ) : (
-                  selectedEmployees.map((emp) => (
-                    <div key={emp.id} className="employee-chip">
-                      <span>{emp.nombre || emp.name}</span>
-                      <button
-                        type="button"
-                        className="chip-close"
-                        onClick={() => handleRemoveEmployee(emp.id)}
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ))
-                )}
-              </div>
+                ))
+              )}
               
+              {/* Input invisible que solo muestra placeholder cuando no hay chips */}
               <input
-                className="search-input search-input-readonly"
-                placeholder="Haz clic en 'Buscar' para seleccionar empleados"
+                className={`search-input-inline ${hasChips ? 'has-chips' : ''}`}
+                placeholder={hasChips ? '' : "Haz clic en 'Buscar' para seleccionar empleados"}
                 readOnly
-                style={{ cursor: 'default' }}
               />
             </div>
             <button className="btn-search" onClick={() => setShowEmployeeModal(true)}>
