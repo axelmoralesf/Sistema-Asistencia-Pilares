@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 
 namespace AsistenciaAPI.Application.DTOs
 {
@@ -11,7 +10,6 @@ namespace AsistenciaAPI.Application.DTOs
         public DateTime FechaInicio { get; init; }
         public DateTime FechaFin { get; init; }
         public Guid? EmpleadoId { get; init; }
-        public List<Guid>? EmpleadoIds { get; init; }
         public string UsuarioGenerador { get; init; } = string.Empty;
     }
 
@@ -21,6 +19,5 @@ namespace AsistenciaAPI.Application.DTOs
         public DateTime FechaInicio { get; init; }
         public DateTime FechaFin { get; init; }
         public Guid? EmpleadoId { get; init; }
-        public List<Guid>? EmpleadoIds { get; init; }
     }
 }
