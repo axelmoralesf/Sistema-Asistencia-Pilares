@@ -338,9 +338,12 @@ const EmployeeList = () => {
     // Si es admin, establecer roleValue como 'Administrador', sino usar el rol actual
     setRoleValue(isAdmin ? 'Administrador' : (employee.role || ''));
     
-    // Establecer valores de email y teléfono
-    setEmailValue(employee.email || '');
-    setPhoneValue(employee.phone || '');
+    // Establecer valores de email y teléfono, convirtiendo 'N/A' a cadena vacía
+    const cleanEmail = (employee.email && employee.email !== 'N/A') ? employee.email : '';
+    const cleanPhone = (employee.phone && employee.phone !== 'N/A') ? employee.phone : '';
+    
+    setEmailValue(cleanEmail);
+    setPhoneValue(cleanPhone);
     setEmailError('');
     setPhoneError('');
     setIdError('');
@@ -831,7 +834,7 @@ const EmployeeList = () => {
                     type="email"
                     id="email"
                     name="email"
-                    placeholder={emailValue === '' ? 'N/A - Sin datos' : ''}
+                    placeholder="N/A - Sin datos"
                     value={emailValue}
                     onChange={handleEmailChange}
                     className={emailError ? 'input-error' : ''}
@@ -845,7 +848,7 @@ const EmployeeList = () => {
                     type="tel"
                     id="phone"
                     name="phone"
-                    placeholder={phoneValue === '' ? 'N/A - Sin datos' : ''}
+                    placeholder="N/A - Sin datos"
                     value={phoneValue}
                     onChange={handlePhoneChange}
                     maxLength="10"
