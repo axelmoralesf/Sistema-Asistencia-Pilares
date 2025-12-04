@@ -512,7 +512,7 @@ const EmployeeList = () => {
           className="logout-button"
           onClick={handleLogout}
         >
-          🚪 Salir
+          ➜] Salir
         </button>
       </div>
 

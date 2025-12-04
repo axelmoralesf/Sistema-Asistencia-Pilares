@@ -38,9 +38,9 @@
 .reports-home {
   padding: 20px;
   background: #C0CFE1;
-  min-height: 100vh;
   color: #0C3175;
   font-family: 'Open Sans', sans-serif;
+  width: 100%;
 }
 
 .title-main {
