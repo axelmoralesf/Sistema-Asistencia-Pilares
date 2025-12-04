@@ -29,7 +29,74 @@ const EmployeeList = () => {
   const [roleValue, setRoleValue] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
+  // Estados para validación de email y teléfono
+  const [emailValue, setEmailValue] = useState('');
+  const [phoneValue, setPhoneValue] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [phoneError, setPhoneError] = useState('');
+
   const token = localStorage.getItem('authToken');
+
+  // ============ VALIDACIÓN DE EMAIL ============
+  const validateEmail = (email) => {
+    if (!email || email.trim() === '') {
+      setEmailError('');
+      return true; // Permitir vacío
+    }
+    
+    // Patrón que requiere: usuario@dominio.extensión
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    
+    if (!emailRegex.test(email)) {
+      setEmailError('Email inválido. Formato requerido: usuario@dominio.com');
+      return false;
+    }
+    
+    setEmailError('');
+    return true;
+  };
+
+  // ============ VALIDACIÓN DE TELÉFONO ============
+  const validatePhone = (phone) => {
+    if (!phone || phone.trim() === '') {
+      setPhoneError('');
+      return true; // Permitir vacío
+    }
+    
+    // Solo números
+    const phoneRegex = /^\d+$/;
+    
+    if (!phoneRegex.test(phone)) {
+      setPhoneError('El teléfono solo debe contener números');
+      return false;
+    }
+    
+    // Validar longitud: 10 dígitos (México estándar)
+    if (phone.length !== 10) {
+      setPhoneError('El teléfono debe tener exactamente 10 dígitos');
+      return false;
+    }
+    
+    setPhoneError('');
+    return true;
+  };
+
+  // ============ MANEJO DE CAMBIO EN EMAIL ============
+  const handleEmailChange = (e) => {
+    const value = e.target.value;
+    setEmailValue(value);
+    validateEmail(value);
+  };
+
+  // ============ MANEJO DE CAMBIO EN TELÉFONO ============
+  const handlePhoneChange = (e) => {
+    const value = e.target.value;
+    // Solo permitir números mientras se escribe
+    if (value === '' || /^\d+$/.test(value)) {
+      setPhoneValue(value);
+      validatePhone(value);
+    }
+  };
 
   // ============ CERRAR SESIÓN (con useCallback) ============
   const handleLogout = useCallback(() => {
@@ -233,6 +300,10 @@ const EmployeeList = () => {
     setIsAdminInModal(false);
     setRoleValue('');
     setShowPassword(false);
+    setEmailValue('');
+    setPhoneValue('');
+    setEmailError('');
+    setPhoneError('');
     setIsModalOpen(true);
   };
 
@@ -265,6 +336,12 @@ const EmployeeList = () => {
     // Si es admin, establecer roleValue como 'Administrador', sino usar el rol actual
     setRoleValue(isAdmin ? 'Administrador' : (employee.role || ''));
     
+    // Establecer valores de email y teléfono
+    setEmailValue(employee.email || '');
+    setPhoneValue(employee.phone || '');
+    setEmailError('');
+    setPhoneError('');
+    
     setShowPassword(false);
     setIsModalOpen(true);
   };
@@ -272,6 +349,8 @@ const EmployeeList = () => {
   const toggleModal = () => {
     setIsModalOpen(false);
     setShowPassword(false);
+    setEmailError('');
+    setPhoneError('');
   };
 
   const togglePasswordVisibility = () => {
@@ -281,6 +360,16 @@ const EmployeeList = () => {
   // ============ GUARDAR (CREAR/EDITAR) ============
   const handleSaveEmployee = async (e) => {
     e.preventDefault();
+    
+    // Validar email y teléfono antes de enviar
+    const emailValid = validateEmail(emailValue);
+    const phoneValid = validatePhone(phoneValue);
+    
+    if (!emailValid || !phoneValid) {
+      alert('Por favor corrige los errores en el formulario antes de continuar.');
+      return;
+    }
+    
     const formData = new FormData(e.target);
 
     const dayOfWeekMap = {
@@ -324,12 +413,16 @@ const EmployeeList = () => {
       EsAdmin: isAdminInModal
     };
 
-    const email = formData.get('email');
-    const phone = formData.get('phone');
+    // Solo incluir email y teléfono si tienen valores válidos (no vacíos)
+    if (emailValue && emailValue.trim() !== '') {
+      employeeData.Email = emailValue.trim();
+    }
+    
+    if (phoneValue && phoneValue.trim() !== '') {
+      employeeData.Telefono = phoneValue.trim();
+    }
+    
     const password = formData.get('password');
-
-    if (email) employeeData.Email = email;
-    if (phone) employeeData.Telefono = phone;
     
     // Incluir contraseña si se proporciona (tanto para crear como editar)
     if (isAdminInModal && password) {
@@ -368,6 +461,8 @@ const EmployeeList = () => {
         showSuccessNotification(`Empleado ${employeeData.IdEmpleadoExterno} ${actionText} correctamente`);
         setIsModalOpen(false);
         setShowPassword(false);
+        setEmailError('');
+        setPhoneError('');
         setTimeout(() => window.location.reload(), 1500);
       } else {
         let errorBody = null;
@@ -703,18 +798,27 @@ const EmployeeList = () => {
                     type="email"
                     id="email"
                     name="email"
-                    defaultValue={modalData.employee?.email}
+                    placeholder={emailValue === '' ? 'N/A - Sin datos' : ''}
+                    value={emailValue}
+                    onChange={handleEmailChange}
+                    className={emailError ? 'input-error' : ''}
                   />
+                  {emailError && <span className="error-message">{emailError}</span>}
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="phone">Teléfono</label>
+                  <label htmlFor="phone">Teléfono (10 dígitos)</label>
                   <input
                     type="tel"
                     id="phone"
                     name="phone"
-                    defaultValue={modalData.employee?.phone}
+                    placeholder={phoneValue === '' ? 'N/A - Sin datos' : ''}
+                    value={phoneValue}
+                    onChange={handlePhoneChange}
+                    maxLength="10"
+                    className={phoneError ? 'input-error' : ''}
                   />
+                  {phoneError && <span className="error-message">{phoneError}</span>}
                 </div>
               </div>
 
@@ -840,6 +944,7 @@ const EmployeeList = () => {
                 <button
                   type="submit"
                   className="submit-button"
+                  disabled={emailError !== '' || phoneError !== ''}
                 >
                   {modalData.isNew ? 'AGREGAR' : 'GUARDAR'}
                 </button>
