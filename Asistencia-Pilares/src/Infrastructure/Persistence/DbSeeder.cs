@@ -68,11 +68,7 @@ namespace AsistenciaAPI.Infrastructure.Persistence
 
             var empleados = new[]
             {
-                admin,
-                new Empleado { IdEmpleadoExterno = "1001", Nombre = "Ana Pérez", EstaActivo = true, AreaId = areaIT.Id, RolId = rolDev.Id },
-                new Empleado { IdEmpleadoExterno = "1002", Nombre = "Luis Gómez", EstaActivo = true, AreaId = areaAdmin.Id, RolId = rolGerente.Id },
-                new Empleado { IdEmpleadoExterno = "1003", Nombre = "María López", EstaActivo = true, AreaId = areaFin.Id, RolId = rolAnalista.Id },
-                new Empleado { IdEmpleadoExterno = "1004", Nombre = "Carlos Ruiz", EstaActivo = false, AreaId = areaIT.Id, RolId = rolAnalista.Id }
+                admin
             };
 
             _context.Empleados.AddRange(empleados);
