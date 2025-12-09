@@ -82,6 +82,9 @@ if (app.Environment.IsDevelopment())
 // *** ACTIVAR CORS ANTES DE OTROS MIDDLEWARES ***
 app.UseCors("AllowFrontend");
 
+// Servir archivos estáticos del frontend React (wwwroot)
+app.UseStaticFiles();
+
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
@@ -122,6 +125,9 @@ app.MapGet("/health/db", async (AsistenciaDbContext db) =>
 
 // Use controllers for empleados, asistencia and reportes
 app.MapControllers();
+
+// Fallback SPA: servir index.html para rutas de frontend
+app.MapFallbackToFile("/index.html");
 
 app.Run();
 

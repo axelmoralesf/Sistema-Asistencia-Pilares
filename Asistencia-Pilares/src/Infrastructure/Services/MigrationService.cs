@@ -19,17 +19,17 @@ namespace AsistenciaAPI.Infrastructure.Services
 
         public void ApplyMigrationsAndSeed()
         {
-            if (_env.IsDevelopment())
+            try
             {
-                // En dev usamos EnsureCreated para un flujo ligero
+                // Usar EnsureCreated() que no valida migraciones pendientes
+                // En producción, ejecutar "dotnet ef database update" manualmente antes de deploy
                 _db.Database.EnsureCreated();
                 _seeder.Seed();
             }
-            else
+            catch (Exception ex)
             {
-                // En prod/staging aplicamos migraciones
-                _db.Database.Migrate();
-                _seeder.Seed();
+                Console.WriteLine($"[ERROR] En ApplyMigrationsAndSeed: {ex}");
+                throw;
             }
         }
     }

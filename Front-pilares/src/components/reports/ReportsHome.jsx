@@ -4,7 +4,7 @@ import { FaEye, FaDownload, FaTrash, FaTimes } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5172";
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 // Suma el tiempo trabajado a partir de los registros devueltos por /reportes
 // y lo devuelve en formato compacto: "X h" / "Y m" / "Z s"

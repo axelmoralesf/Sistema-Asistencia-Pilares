@@ -1,0 +1,45 @@
+{
+  "name": "pilares-asistencia",
+  "version": "1.0.18",
+  "description": "PILARES - Sistema de Asistencia",
+  "main": "main.js",
+  "author": "PILARES",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "dist": "electron-builder --win --x64 --publish never"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.6.4"
+  },
+  "build": {
+    "appId": "com.pilares.asistencia",
+    "productName": "PILARES Asistencia",
+    "directories": {
+      "output": "../../../Distributable"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "API/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "API",
+        "to": "API",
+        "filter": ["**/*"]
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ]
+    }
+  }
+}

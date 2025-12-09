@@ -4,6 +4,9 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <PublishSingleFile>false</PublishSingleFile>
+    <SelfContained>true</SelfContained>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,5 +30,14 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+
+  <!-- Copy React build files directly to publish directory -->
+  <Target Name="CopyReactToPublish" AfterTargets="Publish">
+    <ItemGroup>
+      <ReactBuildFiles Include="$(ProjectDir)..\..\Front-pilares\build\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(ReactBuildFiles)"
+          DestinationFiles="@(ReactBuildFiles->'$(PublishDir)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
 
 </Project>

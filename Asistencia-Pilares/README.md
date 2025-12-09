@@ -1,87 +1,124 @@
-# Asistencia-Pilares
+# Backend API - Sistema de Asistencia PILARES
 
-Proyecto de ejemplo: API de asistencia.
+API REST desarrollada en ASP.NET Core 8.0 para la gestión de asistencias del programa PILARES.
 
-Este README resume cómo trabajar en desarrollo y producción, migraciones, y el comportamiento de seeding.
+## 🚀 Requisitos
 
-## Estructura relevante
-- `src/Core` - entidades del dominio
-- `src/Infrastructure` - DbContext, migraciones y seeding
-- `src/API` - proyecto web que registra servicios y expone endpoints
+- .NET 8.0 SDK
+- SQLite (desarrollo)
 
-## Modos de ejecución
+## 📦 Instalación
 
-### Desarrollo (SQLite local)
-Por defecto `appsettings.Development.json` apunta a `DataSource=asistencia.db`.
-Esto usa SQLite para desarrollo y ejecuta `EnsureCreated()` + seeding en arranque.
-
-Arrancar la app en desarrollo:
-
-```zsh
-cd /home/luis4armenta/proyecto_terminal/src/API
-dotnet run --project AsistenciaAPI.API.csproj
+```bash
+# Restaurar dependencias
+dotnet restore
 ```
 
-Ver endpoint de salud/DB:
+## 💻 Desarrollo
 
-```zsh
-curl http://localhost:5172/health/db
+```bash
+# Desde la carpeta src/API
+cd src/API
+dotnet run
+
+# La API estará disponible en http://localhost:5000
 ```
 
-### Producción (SQL Server)
-En producción la app usa `ConnectionStrings:DefaultConnection` de `appsettings.json` o la variable de entorno `ConnectionStrings__DefaultConnection`.
-Por defecto el ejemplo apunta a SQL Server en `localhost,1433` (útil si usas Docker). En producción la app ejecuta `Database.Migrate()` en arranque.
+La base de datos SQLite se crea automáticamente en:
+- **Windows**: `%LOCALAPPDATA%\AsistenciaPilares\data.db`
+- **Otros**: `~/.local/share/AsistenciaPilares/data.db`
 
-Ejemplo: levantar SQL Server en Docker:
+## 🏗️ Producción
 
-```zsh
-docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=Your_password123' -p 1433:1433 --name sqlserver -d mcr.microsoft.com/mssql/server:2022-latest
+```bash
+# Compilar para producción (win-x64)
+dotnet publish src/API/AsistenciaAPI.API.csproj -c Release -r win-x64 --self-contained
 ```
 
-Configura la cadena de conexión en la variable de entorno y arranca en modo Production:
+## 📁 Estructura del Proyecto
 
-```zsh
-export ConnectionStrings__DefaultConnection="Server=localhost,1433;Database=AsistenciaDb;User Id=sa;Password=Your_password123;TrustServerCertificate=True;"
-ASPNETCORE_ENVIRONMENT=Production dotnet run --project src/API/AsistenciaAPI.API.csproj
+```
+src/
+├── API/              # Endpoints y configuración
+├── Application/      # Servicios y DTOs
+├── Core/            # Entidades del dominio
+└── Infrastructure/  # DbContext y persistencia
 ```
 
-## Migraciones
-Las migraciones se mantienen en `src/Infrastructure/Migrations`.
-Para crear una nueva migración:
+### Capas
 
-```zsh
+**API** - Controllers, configuración de servicios, middleware
+**Application** - Lógica de negocio, servicios, DTOs, AutoMapper
+**Core** - Entidades de dominio (Empleado, Area, Rol, etc.)
+**Infrastructure** - DbContext, migraciones, repositorios
+
+## 🗄️ Base de Datos
+
+### Migraciones
+
+```bash
+# Crear nueva migración
 cd src/Infrastructure
-dotnet ef migrations add NombreCambio --project AsistenciaAPI.Infrastructure.csproj --startup-project ../API/AsistenciaAPI.API.csproj
+dotnet ef migrations add NombreMigracion --startup-project ../API/AsistenciaAPI.API.csproj
+
+# Aplicar migraciones
+dotnet ef database update --startup-project ../API/AsistenciaAPI.API.csproj
 ```
 
-Aplicar migraciones manualmente:
+### Seed de Datos
 
-```zsh
-cd src/Infrastructure
-dotnet ef database update --project AsistenciaAPI.Infrastructure.csproj --startup-project ../API/AsistenciaAPI.API.csproj
-```
+El sistema incluye datos iniciales (áreas, roles, usuarios demo) que se crean automáticamente al iniciar la aplicación por primera vez.
 
-## Seeding
-Seeding idempotente implementado en `src/Infrastructure/Persistence/DbSeeder.cs` y abstraído por `ISeeder`. En dev se ejecuta automáticamente por `EnsureCreated()`. En producción se ejecuta después de `Database.Migrate()`.
+## 🔌 Endpoints Principales
 
-Si prefieres no ejecutar seed automáticamente en producción, modifica `src/Infrastructure/Services/MigrationService.cs` para evitar llamar a `ISeeder.Seed()` cuando `IHostEnvironment.IsProduction()`.
+### Autenticación
+- `POST /api/auth/login` - Iniciar sesión
+- `POST /api/auth/logout` - Cerrar sesión
 
-## Tests
-No hay tests incluidos aún. Recomendación: crear un proyecto de tests y usar `Microsoft.Data.Sqlite` en memoria o `InMemory` provider para testear `MigrationService` y la lógica de `ISeeder`.
+### Empleados
+- `GET /api/empleados` - Listar empleados
+- `GET /api/empleados/{id}` - Obtener empleado
+- `POST /api/empleados` - Crear empleado
+- `PUT /api/empleados/{id}` - Actualizar empleado
+- `DELETE /api/empleados/{id}` - Eliminar empleado
 
-## Notas
-- EnsureCreated vs Database.Migrate: EnsureCreated crea el esquema directamente y no es compatible con migraciones; Database.Migrate aplica migraciones y es la forma recomendada para producción.
+### Asistencias
+- `POST /api/asistencia/registrar` - Registrar entrada/salida
+- `GET /api/asistencia/historial` - Obtener historial
 
----
+### Reportes
+- `POST /api/reportes/generar` - Generar reporte
+- `POST /api/reportes/exportar-pdf` - Exportar a PDF
 
-Si quieres, creo un proyecto de tests con ejemplos de unit tests para `MigrationService` y `DbSeeder`.
+### Áreas
+- `GET /api/areas` - Listar áreas
+- `POST /api/areas` - Crear área
 
-## Cambios en la API: `CrearEmpleadoDto`
+### Roles
+- `GET /api/roles` - Listar roles
 
-La API ahora acepta el campo `AreaId` (opcional) y/o `NombreArea` al crear o actualizar empleados.
+### Salud
+- `GET /health/db` - Verificar conexión a BD
 
-- Prioridad: si se proporciona `AreaId`, se prioriza y debe existir en la base de datos (se retornará error si no existe).
-- Si `AreaId` no se proporciona, se utilizará `NombreArea`: la API buscará un área con ese nombre (case-insensitive) y si no existe la creará automáticamente.
+## ⚙️ Configuración
 
-Si prefieres otro comportamiento (por ejemplo: rechazar nombres nuevos en producción), indícalo y lo ajusto.
+La configuración se encuentra en:
+- `appsettings.json` - Configuración general
+- `appsettings.Development.json` - Solo desarrollo
+
+### Variables de Entorno
+
+- `ConnectionStrings__DefaultConnection` - String de conexión personalizada
+- `ASPNETCORE_ENVIRONMENT` - Entorno (Development/Production)
+
+## 🔐 Seguridad
+
+- Autenticación basada en sesiones
+- Contraseñas hasheadas con BCrypt
+- CORS configurado
+- Validación de datos con FluentValidation
+
+## 📄 Licencia
+
+Gobierno de la Ciudad de México - PILARES
 

@@ -1,51 +1,86 @@
-# Sistema de Registro de Asistencia PILARES
+# Frontend - Sistema de Asistencia PILARES
 
 Sistema web de gestión de asistencias para el programa PILARES de la Ciudad de México.
 
-## 🚀 Instalación
+## 🚀 Requisitos
+
+- Node.js 18+
+- npm 9+
+
+## 📦 Instalación
 
 ```bash
 # Instalar dependencias
 npm install
-
-# Iniciar servidor de desarrollo
-npm start
-
-# Compilar para producción
-npm run build
 ```
 
-## 📋 Características
+## 💻 Desarrollo
 
-### Módulos Principales
+```bash
+# Iniciar servidor de desarrollo en http://localhost:3000
+npm start
+```
 
-1. **Control de Asistencias (RF2)**
-   - Registro de entrada/salida con ID manual
-   - Visualización de escáner QR
-   - Confirmación de registro
+## 🏗️ Producción
 
-2. **Gestión de Empleados (RF1)**
-   - Lista completa de empleados
-   - Alta/edición de empleados
-   - Búsqueda y filtros
-   - Gestión de horarios y roles
+```bash
+# Compilar para producción (output: build/)
+npm run build
 
-3. **Reportes e Historial (RF3)**
-   - Generación de reportes
-   - Filtros avanzados
-   - Visualización de gráficos
-   - Exportación a PDF
+# El build se sirve desde la API en /wwwroot
+```
+
+## 📋 Módulos
+
+### 1. Control de Asistencias
+- Registro de entrada/salida
+- Escaneo de código QR
+- Confirmación visual de registro
+
+### 2. Gestión de Empleados
+- Lista de empleados activos
+- Alta/edición de empleados
+- Búsqueda y filtros
+- Asignación de roles y horarios
+
+### 3. Reportes
+- Generación de reportes por periodo
+- Filtros por empleado, área y fecha
+- Exportación a PDF
+- Visualización de gráficos
 
 ## 🎨 Diseño
 
 ### Paleta de Colores
-- **Vino/Bordó Oscuro (#6E1F34)**: Encabezados
-- **Beige Claro (#E0CCA7)**: Fondo principal
-- **Guinda Oscuro (#7D323F)**: Botones principales
+- **#6E1F34** - Vino/Bordó (encabezados)
+- **#E0CCA7** - Beige claro (fondo)
+- **#7D323F** - Guinda (botones principales)
 
 ### Tipografía
-- **Montserrat**: Títulos y encabezados
-- **Open Sans**: Cuerpo de texto
+- **Montserrat** - Títulos
+- **Open Sans** - Texto general
+
+## 🔌 API
+
+El frontend consume la API REST en:
+- **Desarrollo**: `http://localhost:5000`
+- **Producción**: Mismo origen (servido por la API)
+
+## 📁 Estructura
+
+```
+src/
+├── components/
+│   ├── attendance/    # Módulo de asistencias
+│   ├── employees/     # Módulo de empleados
+│   ├── reports/       # Módulo de reportes
+│   └── common/        # Componentes compartidos
+├── styles/
+│   ├── globals.css    # Estilos globales
+│   ├── colors.js      # Paleta de colores
+│   └── typography.js  # Tipografía
+└── App.jsx            # Componente principal
+```
 
 ## 📄 Licencia
 

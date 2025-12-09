@@ -9,7 +9,7 @@ import ErrorModal from './../common/ErrorModal';
 import LoadingSpinner from './../common/LoadingSpinner';
 
 // *** CONFIGURACIÓN DE LA API ***
-const API_BASE_URL = 'http://localhost:5172';
+const API_BASE_URL = 'http://localhost:5000';
 
 const AttendanceHome = () => {
   const navigate = useNavigate();

@@ -1,0 +1,10 @@
+# Ignorar dependencias
+node_modules/
+package-lock.json
+
+# Ignorar API compilada (se copia en tiempo de build)
+API/
+
+# Ignorar archivos de build
+dist/
+*.log

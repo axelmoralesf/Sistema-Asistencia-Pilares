@@ -5,7 +5,7 @@ import ConfirmModal from './../common/ConfirmModal';
 import SuccessModal from './../common/SuccessModal';
 import LoadingSpinner from './../common/LoadingSpinner';
 
-const API_BASE_URL = 'http://localhost:5172';
+const API_BASE_URL = 'http://localhost:5000';
 const ITEMS_PER_PAGE = 6;
 
 const EmployeeList = () => {
